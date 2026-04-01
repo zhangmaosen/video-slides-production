@@ -86,6 +86,47 @@ e. FFmpeg 视频合成
 最终图片提示词（500+ 字，可直接用于图片生成）
 ```
 
+### 批量生成脚本
+
+**通用脚本**：`batch_generate_prompts.py`
+
+**使用方式**：
+```bash
+cd skills/video-slides-production
+python3 batch_generate_prompts.py \
+  --project tmp-slides/semi-ev3 \
+  --content-file slides_content.json \
+  --output-dir prompts/v6 \
+  --style "混子说风格融合硬核工程拆解素描风格" \
+  --api-key "你的 API_KEY"
+```
+
+**参数说明**：
+- `--project`: 项目名称（workspace 下的目录）
+- `--content-file`: slides 内容文件（JSON 格式，相对于项目目录）
+- `--output-dir`: 输出目录（相对于项目目录）
+- `--style`: 视觉风格（可选，默认混子说风格）
+- `--api-key`: API Key（可选，也可通过环境变量 MINIMAX_API_KEY 设置）
+
+**slides_content.json 格式**：
+```json
+{
+  "slide_00": {
+    "title": "标题",
+    "viewpoint": "观点",
+    "script": "逐字稿",
+    "background": "背景知识"
+  },
+  "slide_01": { ... },
+  ...
+}
+```
+
+**输出**：
+- 每个 slide 生成一个 `.txt` 文件
+- 保存到指定的 output-dir 目录
+- 自动跳过已存在的文件
+
 ### 图片提示词生成（规则外置）
 
 **元提示词模板：** `META_PROMPT.md`  
