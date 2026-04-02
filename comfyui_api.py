@@ -67,8 +67,8 @@ class ComfyUIQwenImageAPI:
         self,
         prompt_text: str,
         negative_prompt: str = "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有 AI 感。构图混乱。文字模糊，扭曲",
-        width: int = 1328,
-        height: int = 1328,
+        width: int = 1280,
+        height: int = 800,
         seed: Optional[int] = None,
         use_lightning: bool = False,
         filename_prefix: str = "Qwen-Image-2512"

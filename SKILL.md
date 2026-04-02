@@ -215,8 +215,8 @@ result = api.generate_image(
 |------|------|------|
 | `generate_image()` | `prompt_text` | 正提示词 |
 | | `negative_prompt` | 负提示词（可选） |
-| | `width` | 图像宽度（默认 1328） |
-| | `height` | 图像高度（默认 1328） |
+| | `width` | 图像宽度（默认 1280） |
+| | `height` | 图像高度（默认 800） |
 | | `seed` | 随机种子（None 表示随机） |
 | | `use_lightning` | Lightning 模式开关（默认 False） |
 | | `filename_prefix` | 输出文件名前缀 |
