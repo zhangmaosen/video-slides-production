@@ -160,10 +160,81 @@ python3 batch_generate_prompts.py \
 
 ## d. ComfyUI 图片生成
 
+### ComfyUI API 客户端
+
+**API 客户端**：`comfyui_api.py`
+
+**功能**：
+- 文本到图像生成（支持 Lightning 模式）
+- 图像编辑（绿身替换）
+- 任务队列管理
+
+**使用示例**：
+```python
+from comfyui_api import ComfyUIAPI
+
+api = ComfyUIAPI("http://100.111.221.7:8188")
+
+# 生成图像（Lightning 模式）
+result = api.generate_image(
+    prompt_text="一辆绿色的卡车",
+    use_lightning=True,
+    filename_prefix="test_truck"
+)
+# 输出：✅ 任务已提交：xxx
+#       模式：Lightning (4 步)
+#       分辨率：1280x800
+```
+
+### 批量生成图片
+
+**批量生成脚本**：`batch_generate_images.py`
+
+**使用方式**：
+```bash
+cd skills/video-slides-production
+python3 batch_generate_images.py \
+  --prompts-dir tmp-slides/semi-ev3/prompts/v6 \
+  --output-dir tmp-slides/semi-ev3/slides \
+  --lightning \
+  --comfyui-url http://100.111.221.7:8188
+```
+
+**参数说明**：
+- `--prompts-dir`: 提示词目录（例如：prompts/v6）
+- `--output-dir`: 输出目录
+- `--lightning`: 使用 Lightning 模式（4 步快速生成，约 24 秒/张）
+- `--no-lightning`: 使用标准模式（50 步，约 5 分钟/张）
+- `--comfyui-url`: ComfyUI API 地址
+
+**工作流程**：
+1. 读取 `prompts-dir` 下的所有 `slide_*.txt` 文件
+2. 调用 ComfyUI API 批量生成图片
+3. 提交任务并显示进度
+4. 生成完成后在 ComfyUI 输出目录查找图片
+
+**输出**：
+- 图片保存到 ComfyUI 的 `output/` 目录
+- 文件名格式：`{slide_name}_0.png`
+
 ### 配置文件
-- **ComfyUI API**: `http://100.111.221.7:8188`
-- **配置文件**: `comfyui_config.json`
-- **工作流**: `Qwen-Image-2512_ComfyUI.json`
+
+**ComfyUI 配置**：`comfyui_config.json`
+```json
+{
+  "base_url": "http://100.111.221.7:8188",
+  "default_mode": "lightning",
+  "resolution": {
+    "width": 1280,
+    "height": 800
+  }
+}
+```
+
+**工作流文件**：
+- `Qwen-Image-2512_ComfyUI.json` - 完整工作流
+- `Qwen-Image-2512_Simple.json` - 简化工作流
+- `Qwen-Image-2512_Workflow.json` - 标准工作流
 
 ### 生成参数
 
@@ -171,26 +242,22 @@ python3 batch_generate_prompts.py \
 - Steps: 50
 - CFG: 4
 - Sampler: euler
-- 分辨率：1664×928 (16:9)
+- 分辨率：1280×800 (16:9)
+- 速度：约 5 分钟/张
 
 **Lightning 模式**（快速）：
 - Steps: 4
 - CFG: 1
 - 启用 LoRA: `Qwen-Image-2512-Lightning-4steps-V1.0-fp32.safetensors`
+- 分辨率：1280×800 (16:9)
+- 速度：约 24 秒/张
 
-### 批量生成脚本
-
-**使用方式**：
-```bash
-cd skills/video-slides-production
-python3 batch_generate.py --project semi-ev3 --mode lightning
-```
-
-**脚本功能**：
-1. 读取 `tmp-slides/{project}/prompts/v5/slide_*.txt`
-2. 调用 ComfyUI API 批量生成
-3. 保存到 `tmp-slides/{project}/slides/slide_*.png`
-4. 记录 seed 到 `tmp-slides/{project}/seeds.json`
+**图像编辑模式**（绿身替换）：
+- 模型：`qwen_image_edit_2509_fp8_e4m3fn.safetensors`
+- LoRA: `Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors`
+- Steps: 4
+- CFG: 1
+- 提示词："把图 1 中的绿色卡车改成图 2 的卡车"
 
 ### c2. 分工
 

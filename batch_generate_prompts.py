@@ -120,12 +120,12 @@ def build_prompt(meta_template, style, title, viewpoint, script, background, tri
         meta_template = meta_template.replace("{输入风格}", style)
     
     # 构建用户输入部分
-    # 如果触发了 Tesla Semi 规则，在背景知识中添加产品类型说明
+    # 如果触发了 Tesla Semi 规则，在背景知识中添加产品类型说明和绿身要求
     background_with_type = background
     if triggered_rules:
         for rule in triggered_rules:
             if "Tesla Semi" in rule['name']:
-                background_with_type = f"电动半挂重型卡车。{background}"
+                background_with_type = f"电动半挂重型卡车。Tesla Semi 车身必须绘制成纯绿色（色值#00FF00），整个车身（包括车头、车厢、车轮等所有部分）都是纯绿色，便于后期用色键抠图把 Semi 抠掉。{background}"
                 break
     
     user_input = f"""
