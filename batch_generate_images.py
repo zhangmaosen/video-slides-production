@@ -9,7 +9,7 @@ import sys
 import json
 import argparse
 from pathlib import Path
-from comfyui_api import ComfyUIAPI
+from comfyui_api import ComfyUIQwenImageAPI
 
 def load_prompts(prompts_dir: str) -> dict:
     """加载所有提示词文件"""
@@ -53,7 +53,7 @@ def batch_generate(
     print()
     
     # 创建 ComfyUI API 客户端
-    api = ComfyUIAPI(comfyui_url)
+    api = ComfyUIQwenImageAPI(comfyui_url)
     
     # 批量生成
     success_count = 0

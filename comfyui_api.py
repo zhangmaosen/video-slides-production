@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """
-ComfyUI API 客户端 - Qwen-Image 图像生成
-基于实际 ComfyUI 工作流配置
+ComfyUI Qwen-Image API 客户端
+
+基于 Qwen-Image-2512 模型的图像生成 API
 参考：https://github.com/Comfy-Org/ComfyUI/blob/master/script_examples/basic_api_example.py
+
+工作流配置：
+- 模型：qwen_image_2512_fp8_e4m3fn.safetensors
+- CLIP: qwen_2.5_vl_7b_fp8_scaled.safetensors
+- VAE: qwen_image_vae.safetensors
+- 支持 Lightning 模式（4 步快速生成）
 """
 
 import json
@@ -11,10 +18,16 @@ import uuid
 from urllib import request
 from typing import Optional, Dict, Any
 
-class ComfyUIAPI:
-    """ComfyUI API 客户端"""
+class ComfyUIQwenImageAPI:
+    """ComfyUI Qwen-Image API 客户端"""
     
     def __init__(self, base_url: str = "http://100.111.221.7:8188"):
+        """
+        初始化 API 客户端
+        
+        Args:
+            base_url: ComfyUI 服务器地址
+        """
         self.base_url = base_url.rstrip('/')
         self.client_id = str(uuid.uuid4())
         
@@ -265,7 +278,7 @@ class ComfyUIAPI:
 
 # 使用示例
 if __name__ == "__main__":
-    api = ComfyUIAPI()
+    api = ComfyUIQwenImageAPI()
     
     # 示例 1：标准模式生成
     result = api.generate_image(

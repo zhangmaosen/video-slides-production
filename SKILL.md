@@ -160,30 +160,76 @@ python3 batch_generate_prompts.py \
 
 ## d. ComfyUI 图片生成
 
-### ComfyUI API 客户端
+### ComfyUI Qwen-Image API 客户端
 
 **API 客户端**：`comfyui_api.py`
 
+**类名**：`ComfyUIQwenImageAPI`
+
 **功能**：
-- 文本到图像生成（支持 Lightning 模式）
-- 图像编辑（绿身替换）
+- 文本到图像生成（Qwen-Image-2512 模型）
+- 支持 Lightning 模式（4 步快速生成）
+- 支持标准模式（50 步高质量生成）
 - 任务队列管理
 
-**使用示例**：
-```python
-from comfyui_api import ComfyUIAPI
+**工作流配置**：
+- 模型：`qwen_image_2512_fp8_e4m3fn.safetensors`
+- CLIP: `qwen_2.5_vl_7b_fp8_scaled.safetensors`
+- VAE: `qwen_image_vae.safetensors`
+- LoRA: `Qwen-Image-2512-Lightning-4steps-V1.0-fp32.safetensors`（Lightning 模式）
 
-api = ComfyUIAPI("http://100.111.221.7:8188")
+**使用示例**：
+
+```python
+from comfyui_api import ComfyUIQwenImageAPI
+
+# 初始化 API 客户端
+api = ComfyUIQwenImageAPI("http://100.111.221.7:8188")
 
 # 生成图像（Lightning 模式）
 result = api.generate_image(
-    prompt_text="一辆绿色的卡车",
-    use_lightning=True,
-    filename_prefix="test_truck"
+    prompt_text="一辆绿色的特斯拉 Semi 卡车",
+    negative_prompt="低分辨率，低画质，肢体畸形",
+    width=1328,
+    height=1328,
+    seed=None,  # 随机种子
+    use_lightning=True,  # Lightning 模式
+    filename_prefix="slide_00"
 )
 # 输出：✅ 任务已提交：xxx
 #       模式：Lightning (4 步)
-#       分辨率：1280x800
+#       分辨率：1328x1328
+#       种子：1234567890
+
+# 生成图像（标准模式）
+result = api.generate_image(
+    prompt_text="一辆绿色的特斯拉 Semi 卡车",
+    use_lightning=False,  # 标准模式（50 步）
+    filename_prefix="slide_00_standard"
+)
+```
+
+**API 方法**：
+
+| 方法 | 参数 | 说明 |
+|------|------|------|
+| `generate_image()` | `prompt_text` | 正提示词 |
+| | `negative_prompt` | 负提示词（可选） |
+| | `width` | 图像宽度（默认 1328） |
+| | `height` | 图像高度（默认 1328） |
+| | `seed` | 随机种子（None 表示随机） |
+| | `use_lightning` | Lightning 模式开关（默认 False） |
+| | `filename_prefix` | 输出文件名前缀 |
+
+**返回结果**：
+```python
+{
+    "prompt_id": "xxx-xxx-xxx",
+    "seed": 1234567890,
+    "use_lightning": True,
+    "status": "queued",
+    "error": None
+}
 ```
 
 ### 批量生成图片
@@ -198,6 +244,60 @@ python3 batch_generate_images.py \
   --output-dir tmp-slides/semi-ev3/slides \
   --lightning \
   --comfyui-url http://100.111.221.7:8188
+```
+
+**参数说明**：
+- `--prompts-dir`: 提示词目录（包含多个 .txt 文件）
+- `--output-dir`: 输出目录（ComfyUI 服务器输出位置）
+- `--lightning`: 使用 Lightning 模式（4 步快速生成）
+- `--comfyui-url`: ComfyUI 服务器地址
+
+**输出**：
+- 每个提示词文件生成一个任务
+- 提交到 ComfyUI 队列
+- 返回任务 ID 和状态
+
+### 下载生成的图片
+
+**下载脚本**：`download_images.py`
+
+**使用方式**：
+```bash
+cd skills/video-slides-production
+python3 download_images.py
+```
+
+**功能**：
+- 自动从 ComfyUI 历史获取文件名
+- 批量下载所有生成的图片
+- 保存到本地目录
+
+**输出位置**：
+```
+tmp-slides/semi-ev3/slides/
+├── slide_00_00003_.png
+├── slide_01_00002_.png
+├── ...
+└── slide_16_00001_.png
+```
+
+### 生成模式对比
+
+| 模式 | 步数 | 耗时 | 质量 | 适用场景 |
+|------|------|------|------|----------|
+| Lightning | 4 步 | ~24 秒 | 高 | 快速迭代、批量生成 |
+| 标准 | 50 步 | ~5 分钟 | 最高 | 最终成品、高质量需求 |
+
+**Lightning 模式特点**：
+- 使用 LoRA: `Qwen-Image-2512-Lightning-4steps-V1.0-fp32.safetensors`
+- 自动切换 steps=4, cfg=1
+- 生成速度快，质量接近标准模式
+
+**标准模式特点**：
+- 不使用 LoRA
+- steps=50, cfg=4
+- 生成速度慢，质量最高
+
 ```
 
 **参数说明**：
