@@ -11,7 +11,7 @@ import argparse
 
 # 获取脚本所在目录
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-WORKSPACE_DIR = os.path.dirname(SCRIPT_DIR)  # 上级目录是 workspace
+WORKSPACE_DIR = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # skills 的上级目录是 workspace
 
 def load_meta_template(template_path):
     """加载元提示词模板"""
@@ -20,20 +20,53 @@ def load_meta_template(template_path):
 
 def load_condition_rules(rules_path):
     """加载条件规则配置"""
+    import re
+    
     rules = {}
     with open(rules_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # 简单的规则解析
-    import re
-    rule_pattern = r'### 规则 (\w+):([^\\n]+)\\n\\n\\*\\*触发关键词\\*\\*：`([^`]+)`\\n\\n\\*\\*描述内容\\*\\*：\\n\\n```([^`]+)`'
-    matches = re.findall(rule_pattern, content, re.DOTALL)
+    # 找到所有规则的开始位置
+    rule_starts = []
+    for match in re.finditer(r'### 规则 (\w+)(:|：)([^\n]+)', content):
+        rule_id = match.group(1)
+        rule_name = match.group(3).strip()
+        start = match.start()
+        rule_starts.append((rule_id, rule_name, start))
     
-    for match in matches:
-        rule_id = match[0]
-        rule_name = match[1].strip()
-        keywords = [k.strip() for k in match[2].split(',')]
-        description = match[3].strip()
+    # 解析每个规则块
+    for i, (rule_id, rule_name, start) in enumerate(rule_starts):
+        # 找到下一个规则的起始位置（或文件末尾）
+        if i + 1 < len(rule_starts):
+            end = rule_starts[i + 1][2]
+        else:
+            end = len(content)
+        
+        rule_content = content[start:end]
+        
+        # 提取关键词
+        keyword_match = re.search(r'\*\*触发关键词\*\*：`([^`]+)`', rule_content)
+        if keyword_match:
+            keywords_str = keyword_match.group(1).strip()
+            if keywords_str.startswith('['):
+                # JSON 数组格式：["semi", "Semi"]
+                try:
+                    keywords = json.loads(keywords_str)
+                except:
+                    keywords = [k.strip().strip('"\'') for k in keywords_str.replace('[', '').replace(']', '').split(',')]
+            else:
+                # 逗号分隔：semi, Semi
+                keywords = [k.strip() for k in keywords_str.split(',')]
+        else:
+            keywords = []
+        
+        # 提取描述内容
+        desc_match = re.search(r'\*\*描述内容\*\*：\n\n```([\s\S]*?)```', rule_content)
+        if desc_match:
+            description = desc_match.group(1).strip()
+        else:
+            description = ""
+        
         rules[rule_id] = {
             'name': rule_name,
             'keywords': keywords,
@@ -71,7 +104,15 @@ def build_prompt(meta_template, style, title, viewpoint, script, background, tri
         insert_pos = meta_template.find(inject_marker)
         next_section = meta_template.find("\\n---\\n\\n## 输出格式", insert_pos)
         if next_section > 0:
-            rules_injection = f"\\n---\\n\\n## 本次生成触发的条件规则\\n\\n**重要**：在生成提示词时，必须将以下规则描述自然融入画面中，不要单独列出或标注重要：\\n\\n{rules_text}\\n---\\n\\n"
+            # 如果触发了 Tesla Semi 规则，添加明确的指令
+            special_instruction = ""
+            if triggered_rules:
+                for rule in triggered_rules:
+                    if "Tesla Semi" in rule['name']:
+                        special_instruction = "**特别注意**：在描述 Tesla Semi 时，必须使用电动半挂重型卡车这个产品类型描述，不能只用特斯拉 Semi 代替！\n\n"
+                        break
+            
+            rules_injection = f"\\n---\\n\\n## 本次生成触发的条件规则\\n\\n{special_instruction}**重要**：在生成提示词时，必须将以下规则描述自然融入画面中，不要单独列出或标注重要：\\n\\n{rules_text}\\n---\\n\\n"
             meta_template = meta_template[:next_section] + rules_injection + meta_template[next_section:]
     
     # 替换用户输入
@@ -79,12 +120,20 @@ def build_prompt(meta_template, style, title, viewpoint, script, background, tri
         meta_template = meta_template.replace("{输入风格}", style)
     
     # 构建用户输入部分
+    # 如果触发了 Tesla Semi 规则，在背景知识中添加产品类型说明
+    background_with_type = background
+    if triggered_rules:
+        for rule in triggered_rules:
+            if "Tesla Semi" in rule['name']:
+                background_with_type = f"电动半挂重型卡车。{background}"
+                break
+    
     user_input = f"""
 - 视觉风格：{style}
 - 标题：{title}
 - 观点：{viewpoint}
 - 逐字稿：{script}
-- 背景知识：{background}
+- 背景知识：{background_with_type}
 """
     
     # 如果模板中有用户输入占位符，替换它
