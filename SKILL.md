@@ -232,6 +232,64 @@ result = api.generate_image(
 }
 ```
 
+### 图片编辑（基于参考图）
+
+**功能**：使用 Qwen-Image-Edit-2509 模型进行图片编辑
+
+**工作流配置**：
+- 模型：`qwen_image_edit_2509_fp8_e4m3fn.safetensors`
+- CLIP: `qwen_2.5_vl_7b_fp8_scaled.safetensors`
+- VAE: `qwen_image_vae.safetensors`
+- LoRA: `Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors`
+
+**使用示例**：
+
+```python
+from comfyui_api import ComfyUIQwenImageAPI
+
+# 初始化 API 客户端
+api = ComfyUIQwenImageAPI("http://100.111.221.7:8188")
+
+# 图片编辑（绿身替换）
+result = api.edit_image(
+    input_image_path="green_car.png",  # 输入图片（要编辑的图片）
+    reference_image_path="truck_reference.png",  # 参考图片（替换内容的参考）
+    edit_prompt="将图 1 中的绿色卡车替换成图 2 中的特斯拉 Semi 卡车，保留图 1 的其他画面",
+    filename_prefix="test_edit"
+)
+# 输出：✅ 编辑任务已提交：xxx
+#       输入图片：green_car.png
+#       参考图片：truck_reference.png
+#       编辑提示：将图 1 中的绿色卡车替换成图 2 中的特斯拉 Semi 卡车...
+```
+
+**API 方法**：
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `input_image_path` | str | 输入图片路径（要编辑的图片，如绿身图片） |
+| `reference_image_path` | str | 参考图片路径（替换内容的参考，如真实产品图） |
+| `edit_prompt` | str | 编辑提示词（描述如何编辑） |
+| `seed` | int | 随机种子（None 表示随机） |
+| `filename_prefix` | str | 输出文件名前缀 |
+
+**返回结果**：
+```python
+{
+    "prompt_id": "xxx-xxx-xxx",
+    "seed": 1234567890,
+    "input_image": "green_car.png",
+    "reference_image": "truck_reference.png",
+    "status": "queued",
+    "error": None
+}
+```
+
+**编辑提示词示例**：
+- "将图 1 中的绿色卡车替换成图 2 中的特斯拉 Semi 卡车，保留图 1 的其他画面"
+- "把图 1 中的车辆替换成图 2 中的卡车，保持场景和光线不变"
+- "用图 2 的产品替换图 1 中的绿色物体，保留背景"
+
 ### 批量生成图片
 
 **批量生成脚本**：`batch_generate_images.py`

@@ -26,7 +26,7 @@ def load_prompts(prompts_dir: str) -> dict:
 def batch_generate(
     prompts_dir: str,
     output_dir: str,
-    use_lightning: bool = True,
+    use_lightning: bool = False,  # 默认标准模式
     comfyui_url: str = "http://100.111.221.7:8188"
 ):
     """
