@@ -3,13 +3,13 @@
 ## 核心流程
 
 ```
-a. 逐字稿 → slides_content.md（观点|逐字稿|背景知识）
+a. 逐字稿 → slides_content.json（内容整理 Agent）
 b. 素材整理（图片、茂森IP）
-c. 图片生成（女娲一页一页生成提示词）
-   c1. 女娲生成提示词（System Prompt + 用户输入）
-   c2. ComfyUI 生成图片
-   c3. 二郎神评分 + 哪吒优化（循环直到 92 分）
-d. TTS生成（茂森语音 Clone）
+c. 图片生成
+   c1. 女娲生成 prompt
+   c2. 哪吒调用 gen_slide.py
+   c3. 二郎神评分（循环直到 92 分）
+d. TTS生成
 e. FFmpeg 视频合成
 ```
 
@@ -17,21 +17,17 @@ e. FFmpeg 视频合成
 
 ## a. 逐字稿格式化
 
-### 输入格式
-```
-标题：xxx
-00|第一页观点
-01|第二页观点
-...
-```
+### Step 1: 生成 slides_content.json
 
-### 输出格式（slides_content.md）
-```
-### 编号 | 标题
-- **观点**：xxx
-- **逐字稿**：xxx
-- **背景知识**：xxx（必要时用浏览器搜索获取）
-```
+**输入：** `script.md`（Markdown 表格）
+**输出：** `slides_content.json`
+
+**Agent System Prompt：** `SYSTEM_PROMPT_CONTENT.md`
+
+**流程：**
+1. 读取 `SYSTEM_PROMPT_CONTENT.md`
+2. 读取 `script.md`
+3. Agent 生成 JSON
 
 ---
 
@@ -51,86 +47,70 @@ e. FFmpeg 视频合成
 
 ### c1. 女娲生成提示词
 
-女娲使用固定 System Prompt + 用户输入，自动分类处理生成提示词。
+**读取文件：**
+- `project_config.json` - style, resolution
+- `slides_content.json` - 幻灯片内容
+- `assets/` - 参考图
 
-**System Prompt 文件：** `SYSTEM_PROMPT.md`
+**Agent System Prompt：** `SYSTEM_PROMPT.md`
 
-**用户输入格式：**
-```
-标题：xxx
-观点：xxx
-逐字稿：xxx
-背景知识：xxx
-```
+**流程：**
+1. 女娲读取 `SYSTEM_PROMPT.md`
+2. 读取 `project_config.json` 获取 style
+3. 读取 `slides_content.json` 获取内容
+4. 读取 `assets/` 中的参考图
+5. 生成提示词 → `prompts/slide_XX/vN_*.txt`
+6. 更新 `CHANGELOG.md`
 
-**关键步骤 - 读取素材图片：**
-女娲在生成每个提示词前，必须使用 image 工具读取对应的素材图片，提取视觉特征。
+### c2. 哪吒生成图片
 
-### c2. 评分迭代流程
+**脚本：** `scripts/core/gen_slide.py`
 
-```
-ComfyUI 生成图片
-    ↓
-二郎神评分（详细扣分汇报）
-    ↓
-哪吒优化提示词（如 < 92 分）
-    ↓
-重新生成图片
-    ↓
-重复直到 >= 92 分
-```
-
-**二郎神职责：**
-- 读取参考图片和待评分图片
-- 逐项对比，详细汇报扣分点
-- 记录所有问题到负向提示词
-
-**哪吒职责：**
-- 根据二郎神反馈优化提示词
-- 将被扣分的点加入负向提示词
-- 生成优化后的图片
-
-**通过标准：92 分+**
-
-### c3. 图片生成脚本
-
-**通用脚本：** `scripts/core/batch_generate_images.py`
-
-**使用方式：**
 ```bash
-cd /Users/maosen/.openclaw/workspace-rex/skills/video-slides-production
-python3 scripts/core/batch_generate_images.py \
+python3 scripts/core/gen_slide.py \
   --project projects/semi-ev3_20260403 \
-  --prompt-file prompts/slide_01.txt \
-  --output projects/semi-ev3_20260403/slides/slide_01.png \
-  --seed random
+  --slide 00 \
+  --version 1
 ```
+
+**输出：** `slides/slide_00_v1.png`
+
+### c3. 二郎神评分
+
+```
+评分标准（100分）：
+- 标题准确性（一票否决）
+- 标题内容：10分
+- 故事性：25分
+- 参考物神似度：30分
+- 视觉吸引力：15分
+- 风格一致性：10分
+- 其它文字：10分
+
+通过标准：92分+
+```
+
+**流程：**
+1. 二郎神评分
+2. 如 < 92 → 女娲优化 prompt → c2
+3. 循环直到 >= 92
 
 ---
 
-## d. TTS生成（茂森语音 Clone）
+## d. TTS生成
 
-### 正确工作流（必须遵守）
+### 正确工作流
 ```
 VoiceDesign（节点 3）→ VoiceClone（节点 40）→ 目标音频
 ```
-
-### Rex 角色设定
-- 姓名：Rex
-- 音色：低沉浑厚，自然停顿，节奏感强
-- instruct：详见 `skills/qwen-tts/SKILL.md`
 
 ---
 
 ## e. FFmpeg 视频合成
 
 ### 字幕叠加
-- 必须加 `format=rgba` 才能使用 PNG alpha 通道
+- 必须加 `format=rgba`
 - macOS 中文字体：`/System/Library/Fonts/STHeiti Medium.ttc`
-
-### 音视频同步
-- 视频片段必须基于实际音频时长生成
-- 音频 concat 统一转为 AAC 再合并
 
 ---
 
@@ -138,33 +118,31 @@ VoiceDesign（节点 3）→ VoiceClone（节点 40）→ 目标音频
 
 ```
 video-slides-production/
-├── SKILL.md                    # 本文档
-├── SCORING.md                  # 评分标准
-├── SYSTEM_PROMPT.md            # 女娲 System Prompt
-├── ComfyUI/                   # ComfyUI 工作流
-├── scripts/                   # 通用脚本
-│   └── core/                  # 核心脚本
-│       └── batch_generate_images.py
-└── projects/                  # 项目目录
+├── SKILL.md                     # 本文档
+├── SCORING.md                 # 评分标准
+├── SYSTEM_PROMPT.md           # 女娲 System Prompt
+├── SYSTEM_PROMPT_CONTENT.md    # 内容整理 System Prompt
+├── ComfyUI/                  # ComfyUI 工作流
+├── scripts/
+│   └── core/
+│       └── gen_slide.py      # 生成图片脚本
+└── projects/
     └── semi-ev3_20260403/
-        ├── slides_content.md   # 幻灯片内容
-        ├── prompts/           # 提示词文件
-        ├── slides/            # 生成的图片
-        └── assets/            # 素材图片
+        ├── project_config.json    # 项目配置
+        ├── slides_content.json    # 幻灯片内容
+        ├── script.md             # 原始逐字稿
+        ├── prompts/              # 提示词（版本化）
+        │   └── slide_00/
+        │       ├── v1_positive.txt
+        │       ├── v1_negative.txt
+        │       └── CHANGELOG.md
+        ├── slides/              # 生成的图片
+        └── assets/              # 参考图
 ```
 
 ---
 
 ## 常用命令
-
-### 生成图片
-```bash
-cd /Users/maosen/.openclaw/workspace-rex/skills/video-slides-production
-python3 scripts/core/batch_generate_images.py \
-  --project projects/semi-ev3_20260403 \
-  --prompt-file prompts/slide_01.txt \
-  --output projects/semi-ev3_20260403/slides/slide_01.png
-```
 
 ### 检查 ComfyUI 状态
 ```bash
@@ -173,5 +151,5 @@ curl http://100.111.221.7:8188/system_stats
 
 ---
 
-**版本**：v3.0 (2026-04-04)
-**更新**：简化女娲流程，移除 META_PROMPT，改为 System Prompt 直接注入
+**版本**：v4.0 (2026-04-04)
+**更新**：新增内容整理 Agent，完善流程文档
