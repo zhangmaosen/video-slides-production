@@ -97,7 +97,7 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
 
                                     # 保存
                                     os.makedirs(OUTPUT_DIR, exist_ok=True)
-                                    output_path = os.path.join(OUTPUT_DIR, "slide_00_v2.png")
+                                    output_path = os.path.join(OUTPUT_DIR, "slide_00_v3.png")
                                     with open(output_path, 'wb') as f:
                                         f.write(image_data)
 
@@ -106,7 +106,7 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
                                     print(f"📁 保存到：{output_path}")
                                     return {
                                         "status": "success",
-                                        "filename": "slide_00_v2.png",
+                                        "filename": "slide_00_v3.png",
                                         "prompt_id": prompt_id,
                                         "seed": seed,
                                         "elapsed": elapsed
