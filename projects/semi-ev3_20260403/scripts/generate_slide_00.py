@@ -7,8 +7,8 @@ sys.path.append('/Users/maosen/.openclaw/workspace-rex/skills/video-slides-produ
 
 from comfyui_api import ComfyUIQwenImageAPI
 
-# 读取 prompt
-with open('prompts/slide_00_final.txt', 'r', encoding='utf-8') as f:
+# 读取 prompt (v3 版本)
+with open('prompts/slide_00_positive_v3.txt', 'r', encoding='utf-8') as f:
     prompt = f.read()
 
 print("="*60)
@@ -27,7 +27,7 @@ result = api.generate_image(
     height=928,
     seed=None,  # 随机种子
     use_lightning=True,  # Lightning 模式（4 步）
-    filename_prefix="slide_00"
+    filename_prefix="slide_00_v3"
 )
 
 print(f"\n结果：{result}")
