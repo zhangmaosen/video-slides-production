@@ -3,7 +3,7 @@
 ## 核心流程
 
 ```
-a. 逐字稿 → slides_content.json（内容整理 Agent）
+a. 逐字稿 → slides_content.json（仓颉整理）
 b. 素材整理（图片、茂森IP）
 c. 图片生成
    c1. 女娲生成 prompt
@@ -22,10 +22,10 @@ e. FFmpeg 视频合成
 **输入：** `script.md`（Markdown 表格）
 **输出：** `slides_content.json`
 
-**Agent System Prompt：** `SYSTEM_PROMPT_CONTENT.md`
+**仓颉 System Prompt：** `SYSTEM_PROMPT_CANGJIE.md`
 
 **流程：**
-1. 读取 `SYSTEM_PROMPT_CONTENT.md`
+1. 仓颉读取 `SYSTEM_PROMPT_CANGJIE.md`
 2. 读取 `script.md`
 3. Agent 生成 JSON
 
@@ -121,7 +121,7 @@ video-slides-production/
 ├── SKILL.md                     # 本文档
 ├── SCORING.md                 # 评分标准
 ├── SYSTEM_PROMPT.md           # 女娲 System Prompt
-├── SYSTEM_PROMPT_CONTENT.md    # 内容整理 System Prompt
+├── SYSTEM_PROMPT_CANGJIE.md    # 仓颉 System Prompt
 ├── ComfyUI/                  # ComfyUI 工作流
 ├── scripts/
 │   └── core/
