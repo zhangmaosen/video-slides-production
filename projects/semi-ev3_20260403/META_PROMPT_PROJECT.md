@@ -102,6 +102,12 @@ Sermi，Sermi，Seemi，Semi变形，Tesla变体拼写
 - 正向提示词：`prompts/slide_XX_positive.txt`
 - 负向提示词：`prompts/slide_XX_negative.txt`
 
+### Git 版本管理
+哪吒优化提示词时必须：
+1. 先 `git add` + `git commit` 保存当前版本
+2. 然后修改提示词文件
+3. 提交 message 要清晰说明优化了什么
+
 ---
 
 **版本**：v1.0 (2026-04-03)
