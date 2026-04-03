@@ -77,8 +77,9 @@ python3 scripts/core/gen_slide.py \
 
 ### c3. 二郎神评分
 
-```
-评分标准（100分）：
+**详细流程：** 见 `AUTORESEARCH_LOOP.md`
+
+**评分标准（100分）：**
 - 标题准确性（一票否决）
 - 标题内容：10分
 - 故事性：25分
@@ -87,8 +88,7 @@ python3 scripts/core/gen_slide.py \
 - 风格一致性：10分
 - 其它文字：10分
 
-通过标准：92分+
-```
+**通过标准：92分+**
 
 **流程：**
 1. 二郎神评分
@@ -121,6 +121,7 @@ video-slides-production/
 ├── SKILL.md                     # 本文档
 ├── SCORING.md                 # 评分标准
 ├── SYSTEM_PROMPT.md           # 女娲 System Prompt
+├── AUTORESEARCH_LOOP.md      # 循环流程
 ├── SYSTEM_PROMPT_CANGJIE.md    # 仓颉 System Prompt
 ├── ComfyUI/                  # ComfyUI 工作流
 ├── scripts/
