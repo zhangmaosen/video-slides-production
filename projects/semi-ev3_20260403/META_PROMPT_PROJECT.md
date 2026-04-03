@@ -67,7 +67,12 @@ projects/semi-ev3_20260403/assets/
 
 ---
 
-## 输出格式
+## 输出格式（重要：正向负向分开）
+
+女娲必须将正向提示词和负向提示词保存为**独立文件**：
+
+### 正向提示词文件
+**文件路径**：`prompts/slide_XX_positive.txt`
 
 ```
 混子说 + 硬核工程拆解爆炸图风格，线条粗细变化，诙谐严肃混合，技术细节清晰，结构透视感强，舞台感构图。
@@ -82,18 +87,20 @@ projects/semi-ev3_20260403/assets/
 [其他标注...]
 ```
 
----
-
-## 负向提示词（生成后附加）
+### 负向提示词文件
+**文件路径**：`prompts/slide_XX_negative.txt`
 
 ```
-负向提示词：
 AI generated, digital rendering, 3D render, photorealistic, smooth rendering, hyperrealistic
 低画质，肢体畸形，手指畸形，过饱和，蜡像感，人脸无细节
 银色车身，灰色涂装，金属银，metallic silver，silver gray
 文字错别字，文字乱码，模糊文字，奇怪符号
 Sermi，Sermi，Seemi，Semi变形，Tesla变体拼写
 ```
+
+### 文件命名规范
+- 正向提示词：`prompts/slide_XX_positive.txt`
+- 负向提示词：`prompts/slide_XX_negative.txt`
 
 ---
 
