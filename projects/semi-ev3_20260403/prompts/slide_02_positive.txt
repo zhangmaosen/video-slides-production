@@ -1,1 +1,17 @@
-Tesla Semi electric truck, white body with black accents, studio lighting, explosion diagram style showing internal structure, technical annotation overlay, 48V electrical architecture highlighted in red, cyan wire harnesses simplified and reduced, Cybertruck steer-by-wire actuator highlighted in orange, floating engineering labels in Chinese, dynamic explosion effect with components suspended in air, cinematic composition, high contrast, industrial design, cutaway view revealing inner workings, dramatic lighting, dark technical background with blueprint grid, engineering precision, futuristic heavy-duty trucking technology
+混子说风格 + 硬核工程拆解爆炸图风格 + 技术解析剖面图。画面采用中心爆炸展开构图，特斯拉 Semi 位于画面正中央，车身各个系统组件以悬浮状态向四周炸开，如同精密的机械爆炸图。背景设定为深色技术蓝图网格，营造专业工程解析的视觉氛围。
+
+车身整体采用纯白色涂装，悬浮于画面中央偏左位置，各系统组件向外呈放射状炸开。全车以 3D 剖面形式展示，内部结构清晰可见，金属表面反射着冷冽的科技蓝光。外壳部分呈半透明状态，内部结构隐约可见，部分外壳面板已拆卸并悬浮于空中，展示内部精密布局。
+
+电池系统位于画面中心偏下位置，是最大的悬浮组件之一。采用模块化电池包设计，每个电池模组整齐排列，冷却管路呈蓝色光晕环绕，电池包外壳采用深灰色金属材质，表面有散热鳍片纹理。电池包与车身底部齐平安装，低位重心设计增强高速稳定性。
+
+48V 电气架构系统位于画面左侧，工程师以透明色块标注说明。高压电缆以醒目的橙色光晕标识，线束极其简洁，相比传统 12V 系统减少约 70% 的线束用量。配电模块呈深灰色方块状，排列整齐有序，每个模块之间通过简洁的铜排连接，布线清晰直观。控制单元采用黑色金属外壳，表面有特斯拉标志性的电路纹理。
+
+电驱动系统位于画面顶部，包含前轴单电机和后轴双电机配置。电机外壳以银灰色铝合金材质呈现，内部铜线绕组清晰可见，电机转子呈深色金属光泽。电机与减速器集成设计，减速器外壳有精密的齿轮纹理细节。电机冷却系统以蓝色管路环绕，持续循环流动。
+
+Cybertruck 强化执行器位于画面右侧，是核心创新亮点之一。采用电动助力转向系统彻底替代传统液压转向，执行器外壳以荧光橙色标识以示区分，内部线性执行器活塞结构清晰可见。执行器与转向机构通过几何连杆连接，转向拉杆呈深灰色金属质感。整个转向系统在爆炸图中清晰展示机械原理，凸显线控转向技术的工程突破。
+
+减重技术细节位于画面底部，453 公斤减重数据以大字形式悬浮展示。车身结构采用高强度铝合金骨架，部分结构件以碳纤维材质标注。悬架系统经过全面优化，控制臂采用锻造铝合金材质。驾驶舱外壳以复合材料制成，壁厚经过精密计算优化。一辆被拆解的传统燃油重卡结构对比图悬浮于画面最左侧，展示两者的结构复杂度差异。
+
+底盘系统位于画面最下方，包括前轴空气悬架和后轴独立悬架。轮毂采用锻造铝合金材质，相比传统钢制轮毂大幅减重。轮胎为低滚阻设计，胎面纹理清晰可见。制动系统采用线控电子制动，卡钳以红色标注，位于车轮内侧。
+
+"技术突破" 位于画面顶部居中位置，使用白色无衬线粗体字体，字体大小为主视觉中最大，字体颜色为纯白色并带有微弱的发光效果。"453 公斤整车减重" 位于爆炸图正中央偏右位置，使用荧光橙色粗体数字字体，字体大小为标题的 80%，带有能量光晕效果。"电气架构彻底革命" 位于减重数据下方，使用科技蓝色细体字体，字体大小为标题的 40%，居中对齐。"48V 全面取代 12V · 线控转向首次上车" 位于画面左下角，采用荧光绿色小号字体配合深色半透明背景框的形式呈现。
