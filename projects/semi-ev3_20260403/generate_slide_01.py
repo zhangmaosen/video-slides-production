@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-生成 slide_00 图片
+生成 slide_01 图片
 使用 Qwen-Image-2512 ComfyUI 工作流
 """
 import json
@@ -16,14 +16,14 @@ PROJECT_DIR = "/Users/maosen/.openclaw/workspace-rex/skills/video-slides-product
 OUTPUT_DIR = os.path.join(PROJECT_DIR, "slides")
 
 # 读取提示词
-with open(os.path.join(PROJECT_DIR, "prompts/slide_00_positive.txt"), "r", encoding="utf-8") as f:
+with open(os.path.join(PROJECT_DIR, "prompts/slide_01_positive.txt"), "r", encoding="utf-8") as f:
     POSITIVE_PROMPT = f.read().strip()
 
-with open(os.path.join(PROJECT_DIR, "prompts/slide_00_negative.txt"), "r", encoding="utf-8") as f:
+with open(os.path.join(PROJECT_DIR, "prompts/slide_01_negative.txt"), "r", encoding="utf-8") as f:
     NEGATIVE_PROMPT = f.read().strip()
 
-def generate_slide_00(seed=None, steps=50, cfg=4):
-    """生成 slide_00 图片"""
+def generate_slide_01(seed=None, steps=50, cfg=4):
+    """生成 slide_01 图片"""
     # 加载 workflow
     with open(WORKFLOW_PATH, 'r', encoding='utf-8') as f:
         workflow = json.load(f)
@@ -44,7 +44,7 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
     workflow["238:230"]["inputs"]["seed"] = seed
     workflow["238:224"]["inputs"]["value"] = steps  # Steps
     workflow["238:223"]["inputs"]["value"] = cfg  # CFG
-    workflow["60"]["inputs"]["filename_prefix"] = "slide_00"
+    workflow["60"]["inputs"]["filename_prefix"] = "slide_01"
 
     print(f"📐 分辨率：1280x800, Steps: {steps}, CFG: {cfg}")
 
@@ -97,7 +97,7 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
 
                                     # 保存
                                     os.makedirs(OUTPUT_DIR, exist_ok=True)
-                                    output_path = os.path.join(OUTPUT_DIR, "slide_00_v2.png")
+                                    output_path = os.path.join(OUTPUT_DIR, "slide_01.png")
                                     with open(output_path, 'wb') as f:
                                         f.write(image_data)
 
@@ -106,7 +106,7 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
                                     print(f"📁 保存到：{output_path}")
                                     return {
                                         "status": "success",
-                                        "filename": "slide_00_v2.png",
+                                        "filename": "slide_01.png",
                                         "prompt_id": prompt_id,
                                         "seed": seed,
                                         "elapsed": elapsed
@@ -125,8 +125,8 @@ def generate_slide_00(seed=None, steps=50, cfg=4):
 
 if __name__ == "__main__":
     print("="*60)
-    print("生成 slide_00 图片")
+    print("生成 slide_01 图片")
     print("="*60)
     
-    result = generate_slide_00()
+    result = generate_slide_01()
     print(f"\n📊 结果：{result}")
