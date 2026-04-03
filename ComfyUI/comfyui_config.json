@@ -1,0 +1,19 @@
+{
+  "comfyui_api": "http://100.111.221.7:8188",
+  "workflow_file": "Qwen-Image-2512_ComfyUI.json",
+  "default_settings": {
+    "width": 1280,
+    "height": 800,
+    "steps": 50,
+    "cfg": 4,
+    "sampler": "euler",
+    "enable_lightning": false
+  },
+  "lightning_settings": {
+    "steps": 4,
+    "cfg": 1,
+    "enable_lightning": true
+  },
+  "negative_prompt": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有 AI 感。构图混乱。文字模糊，扭曲",
+  "output_dir": "../../tmp-slides/semi-ev3/slides/"
+}

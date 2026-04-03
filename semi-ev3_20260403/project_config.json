@@ -1,0 +1,8 @@
+{
+  "project_name": "Tesla Semi",
+  "style": "手绘漫画风格，线条粗细变化，水墨灰阶，诙谐严肃混合，混子说风格，舞台感构图",
+  "resolution": "1280x800",
+  "slides_count": 18,
+  "content_file": "slides_content.md",
+  "output_dir": "prompts"
+}
