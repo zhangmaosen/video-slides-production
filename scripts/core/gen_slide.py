@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 生成幻灯片图片
-从 prompts/slide_xx_positive.txt 和 slide_xx_negative.txt 读取提示词，调用 ComfyUI API 生成图片
+从 prompts/slide_XX/vN_positive.txt 和 vN_negative.txt 读取提示词，调用 ComfyUI API 生成图片
 
-正向和负向提示词分开文件存储：
-- slide_xx_positive.txt：正向提示词（画面描述）
-- slide_xx_negative.txt：负向提示词（需要避免的问题）
+用法：
+  python3 gen_slide.py --project projects/semi-ev3_20260403 --slide 00 --version 1
+
+输出：
+  slides/slide_00_v1.png
 """
 
 import os
@@ -85,7 +87,7 @@ def generate_image(
     print(f"  Task ID: {task_id}")
     
     # 等待完成
-    max_wait = 300
+    max_wait = 600
     start_time = time.time()
     while time.time() - start_time < max_wait:
         history = requests.get(f"{api_url}/history/{task_id}", timeout=10).json()
@@ -105,26 +107,38 @@ def generate_image(
     return False
 
 def main():
-    parser = argparse.ArgumentParser(description="生成幻灯片图片（正向负向分开）")
-    parser.add_argument("--project", required=True, help="项目目录")
+    parser = argparse.ArgumentParser(description="生成幻灯片图片")
+    parser.add_argument("--project", required=True, help="项目目录（相对于 skills/video-slides-production）")
     parser.add_argument("--slide", required=True, help="幻灯片编号（如 00, 01）")
-    parser.add_argument("--positive", help="正向提示词文件路径")
-    parser.add_argument("--negative", help="负向提示词文件路径")
-    parser.add_argument("--output", help="输出文件路径")
+    parser.add_argument("--version", type=int, default=1, help="版本号（默认 1）")
     parser.add_argument("--seed", type=int, default=None, help="随机种子")
+    parser.add_argument("--width", type=int, default=1280, help="图片宽度")
+    parser.add_argument("--height", type=int, default=800, help="图片高度")
     parser.add_argument("--api-url", default=API_URL, help="ComfyUI API 地址")
     
     args = parser.parse_args()
     
-    # 构建路径
-    project_dir = Path(args.project)
+    # 构建路径（相对于 skills/video-slides-production）
+    skills_dir = Path(__file__).parent.parent.parent
+    project_dir = skills_dir / args.project
     slide_num = args.slide
+    version = args.version
     
-    # 默认文件路径
-    prompts_dir = project_dir / "prompts"
-    positive_file = args.positive or prompts_dir / f"slide_{slide_num}_positive.txt"
-    negative_file = args.negative or prompts_dir / f"slide_{slide_num}_negative.txt"
-    output_file = args.output or project_dir / "slides" / f"slide_{slide_num}.png"
+    # 提示词文件路径
+    prompt_dir = project_dir / "prompts" / f"slide_{slide_num}"
+    positive_file = prompt_dir / f"v{version}_positive.txt"
+    negative_file = prompt_dir / f"v{version}_negative.txt"
+    
+    # 输出文件路径
+    output_file = project_dir / "slides" / f"slide_{slide_num}_v{version}.png"
+    
+    # 检查文件是否存在
+    if not positive_file.exists():
+        print(f"错误：正向提示词文件不存在: {positive_file}")
+        sys.exit(1)
+    if not negative_file.exists():
+        print(f"错误：负向提示词文件不存在: {negative_file}")
+        sys.exit(1)
     
     # 确保输出目录存在
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -138,7 +152,7 @@ def main():
     with open(negative_file, 'r', encoding='utf-8') as f:
         negative_prompt = f.read().strip()
     
-    print(f"\n生成 slide_{slide_num}...")
+    print(f"\n生成 slide_{slide_num}_v{version}...")
     
     # 生成图片
     success = generate_image(
@@ -146,6 +160,8 @@ def main():
         negative_prompt=negative_prompt,
         output_path=str(output_file),
         seed=args.seed,
+        width=args.width,
+        height=args.height,
         api_url=args.api_url
     )
     
