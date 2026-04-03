@@ -5,29 +5,37 @@
 ```
 a. 逐字稿 → slides_content.json（仓颉整理）
 b. 素材整理（图片、茂森IP）
-c. 图片生成
-   c1. 女娲生成 prompt
-   c2. 哪吒调用 gen_slide.py
-   c3. 二郎神评分（循环直到 92 分）
+c. Autoresearch Loop
+   - 女娲生成 prompt
+   - 哪吒生成图片
+   - 二郎神评分
+   - 记录 + 决策（最多10次，选最高分）
 d. TTS生成
 e. FFmpeg 视频合成
 ```
 
 ---
 
+## 角色分工
+
+| 角色 | 职责 | 执行者 |
+|------|------|--------|
+| **仓颉** | 内容整理（slides_content.json） | Agent |
+| **女娲** | 生成和优化 prompt | Agent |
+| **哪吒** | 生成图片 | Agent |
+| **二郎神** | 评分 + 扣分点 | Agent |
+| **Rex** | 协调循环、记录、决策 | 人类/Rex |
+
+---
+
 ## a. 逐字稿格式化
 
-### Step 1: 生成 slides_content.json
+### 生成 slides_content.json
 
 **输入：** `script.md`（Markdown 表格）
 **输出：** `slides_content.json`
 
 **仓颉 System Prompt：** `SYSTEM_PROMPT_CANGJIE.md`
-
-**流程：**
-1. 仓颉读取 `SYSTEM_PROMPT_CANGJIE.md`
-2. 读取 `script.md`
-3. Agent 生成 JSON
 
 ---
 
@@ -43,26 +51,39 @@ e. FFmpeg 视频合成
 
 ---
 
-## c. 图片生成
+## c. Autoresearch Loop
 
-### c1. 女娲生成提示词
+**详细流程：** 见 `AUTORESEARCH_LOOP.md`
+
+### 流程图
+```
+仓颉整理 → 女娲生成 prompt → 哪吒生成图片 → 二郎神评分
+                                                              ↓
+                                               < 最高分：女娲优化 → 循环
+                                               >= 最高分：记录 → 下一张
+```
+
+### 实验规则
+- **最大迭代：10 次**
+- **评分越高越好**（无 92 门槛）
+- **回退机制**：评分下降时回退到上一版本
+- **最终选择**：10 次后选最高分版本
+
+### 女娲生成 prompt
 
 **读取文件：**
 - `project_config.json` - style, resolution
 - `slides_content.json` - 幻灯片内容
 - `assets/` - 参考图
 
-**Agent System Prompt：** `SYSTEM_PROMPT.md`
+**System Prompt：** `SYSTEM_PROMPT.md`
 
-**流程：**
-1. 女娲读取 `SYSTEM_PROMPT.md`
-2. 读取 `project_config.json` 获取 style
-3. 读取 `slides_content.json` 获取内容
-4. 读取 `assets/` 中的参考图
-5. 生成提示词 → `prompts/slide_XX/vN_*.txt`
-6. 更新 `CHANGELOG.md`
+**输出：**
+- `prompts/slide_XX/vN_positive.txt`
+- `prompts/slide_XX/vN_negative.txt`
+- 更新 `CHANGELOG.md`
 
-### c2. 哪吒生成图片
+### 哪吒生成图片
 
 **脚本：** `scripts/core/gen_slide.py`
 
@@ -73,27 +94,20 @@ python3 scripts/core/gen_slide.py \
   --version 1
 ```
 
-**输出：** `slides/slide_00_v1.png`
+**输出：** `slides/slide_XX_vN.png`
 
-### c3. 二郎神评分
-
-**详细流程：** 见 `AUTORESEARCH_LOOP.md`
+### 二郎神评分
 
 **评分标准（100分）：**
-- 标题准确性（一票否决）
-- 标题内容：10分
-- 故事性：25分
-- 参考物神似度：30分
-- 视觉吸引力：15分
-- 风格一致性：10分
-- 其它文字：10分
-
-**通过标准：92分+**
-
-**流程：**
-1. 二郎神评分
-2. 如 < 92 → 女娲优化 prompt → c2
-3. 循环直到 >= 92
+| 项目 | 分值 |
+|------|------|
+| 标题准确性 | 一票否决 |
+| 标题内容 | 10分 |
+| 故事性 | 25分 |
+| 参考物神似度 | 30分 |
+| 视觉吸引力 | 15分 |
+| 风格一致性 | 10分 |
+| 其它文字 | 10分 |
 
 ---
 
@@ -121,8 +135,8 @@ video-slides-production/
 ├── SKILL.md                     # 本文档
 ├── SCORING.md                 # 评分标准
 ├── SYSTEM_PROMPT.md           # 女娲 System Prompt
-├── AUTORESEARCH_LOOP.md      # 循环流程
-├── SYSTEM_PROMPT_CANGJIE.md    # 仓颉 System Prompt
+├── SYSTEM_PROMPT_CANGJIE.md   # 仓颉 System Prompt
+├── AUTORESEARCH_LOOP.md       # Autoresearch 循环流程
 ├── ComfyUI/                  # ComfyUI 工作流
 ├── scripts/
 │   └── core/
@@ -133,7 +147,7 @@ video-slides-production/
         ├── slides_content.json    # 幻灯片内容
         ├── script.md             # 原始逐字稿
         ├── prompts/              # 提示词（版本化）
-        │   └── slide_00/
+        │   └── slide_XX/
         │       ├── v1_positive.txt
         │       ├── v1_negative.txt
         │       └── CHANGELOG.md
@@ -152,5 +166,5 @@ curl http://100.111.221.7:8188/system_stats
 
 ---
 
-**版本**：v4.0 (2026-04-04)
-**更新**：新增内容整理 Agent，完善流程文档
+**版本**：v5.0 (2026-04-04)
+**更新**：AUTORESEARCH_LOOP v2.0，Karpathy 方式，固定 10 次迭代选最高分
