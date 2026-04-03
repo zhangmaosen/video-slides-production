@@ -65,6 +65,30 @@ Tesla Semi、特斯拉等品牌名必须原样保留。
 
 ---
 
+## 版本管理
+
+每个 slide 一个文件夹：
+```
+prompts/
+├── slide_00/
+│   ├── v1_positive.txt
+│   ├── v1_negative.txt
+│   ├── v2_positive.txt
+│   ├── v2_negative.txt
+│   └── CHANGELOG.md
+├── slide_01/
+│   └── ...
+```
+
+**生成流程：**
+1. 读取 `slides_content.json` 获取内容
+2. 检查 `prompts/slide_XX/` 下的最新版本号
+3. 生成提示词 → `prompts/slide_XX/v{N+1}_positive.txt` + `v{N+1}_negative.txt`
+4. 更新 `CHANGELOG.md`
+5. Git commit
+
+---
+
 ## 输出要求
 
 **只输出改写后的 Prompt 文本，不要解释。**
