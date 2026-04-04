@@ -292,7 +292,24 @@ ${SCORE_REPLY:0:500}" "$IMG_FILE"
 
 done
 
+# ============================================================
+# 最终汇报
+# ============================================================
+
 echo ""
 echo "========================================================"
 echo "  全部完成！"
 echo "========================================================"
+
+# 构建汇报消息
+REPORT="✅ Autoresearch Loop 完成\n项目：${PROJECT_NAME}\n\n"
+for SLIDE_NUM in $SLIDES; do
+  SLIDE_FMT=$(printf "%02d" "$SLIDE_NUM")
+  CL_FILE="${PROJECT_DIR}/prompts/slide_${SLIDE_FMT}/CHANGELOG.md"
+  if [ -f "$CL_FILE" ]; then
+    BEST_LINE=$(grep "最终选择" "$CL_FILE" 2>/dev/null || echo "未完成")
+    REPORT+="slide_${SLIDE_FMT}: ${BEST_LINE}\n"
+  fi
+done
+
+notify "$(echo -e "$REPORT")"
