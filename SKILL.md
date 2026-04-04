@@ -217,6 +217,7 @@ video-slides-production/
   "slides_count": 12,
   "has_maosen_ip": true,
   "has_maosen_voice": true,
+  "reference_keywords": ["Semi", "Tesla", "卡车", "重卡", "座舱", "竞品名"],
   "reference_images": ["assets/ref_01.jpg", "assets/ref_02.jpg"]
 }
 ```

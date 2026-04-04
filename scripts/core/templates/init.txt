@@ -16,12 +16,11 @@
 
 ## 第二步：判断页面类型
 
+从 ${PROJECT_DIR}/project_config.json 读取 reference_keywords 列表。
+
 - **封面页(slide_00)**：产品英雄镜头 + main_title + subtitle
-- **需要参考图的页**：script/background 中出现以下关键词 → 场景中融入 Semi 或参考对象：
-  - "Semi"、"Tesla"、"卡车"、"重卡"、"电卡"
-  - "座舱"、"驾驶位"、"方向盘"、"触控屏"
-  - 任何竞品车型名（"Volvo"、"Windrose"、"DHL"、"百事"）
-- **纯故事场景页**：不需要画参考图中的对象 → 根据逐字稿设计场景
+- **需要参考图的页**：script/background 中出现 reference_keywords 的任何关键词 → 场景中融入 Semi/参考对象
+- **纯故事场景页**：不需要画参考图 → 根据逐字稿设计场景
 
 ## 第三步：提炼画面（先想清楚再写）
 

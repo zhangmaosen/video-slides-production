@@ -12,22 +12,14 @@
 
 ## 第二步：判断评分路径
 
-**必须严格遵守以下规则：**
+从 ${PROJECT_DIR}/project_config.json 读取 reference_keywords 列表。
+读取 slides_content 中该页的 script/background。
 
+**判断规则：**
 1. slide_00 → **路径 A**
-2. script/background 中出现以下关键词 → **强制路径 A**：
-   - "Semi"、"Tesla"、"卡车"、"重卡"、"电卡"、"重卡"
-   - "座舱"、"驾驶位"、"方向盘"、"触控屏"
-   - "充电"、"续航"、"电池"（配合车辆外观）
-   - 任何竞品车型名（"Volvo"、"Windrose"、"DHL"、"百事"）
-3. ref_meta 的"适用slides"字段与当前页内容匹配 → **路径 A**
-4. 以上都不符合 → **路径 B（纯故事场景）**
-
-**举例：**
-- "Semi实测1.7度电" → 路径 A（提到 Semi）
-- "100年没变过的重卡被电动化搅局" → 路径 A（提到重卡）
-- "Tesla Semi用数据说话" → 路径 A（提到 Tesla）
-- "货运革命里笑到最后" → 路径 B（纯概念，无具体车辆）
+2. script/background 中出现 reference_keywords 中的任何关键词 → **路径 A**
+3. ref_meta 的"适用slides"字段与该页内容匹配 → **路径 A**
+4. 以上都不符合 → **路径 B**
 
 ## 评分标准(100分制)
 
