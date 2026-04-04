@@ -309,19 +309,8 @@ done
 
 REPORT+="\n下一步：TTS 语音生成 + FFmpeg 视频合成"
 
-notify "$(echo -e "$REPORT")"
-
-# ============================================================
-# 自动驱动下一步：通知 Rex 启动 TTS + 合成
-# ============================================================
-
 if [ "$ALL_PASS" = true ]; then
-  echo ""
-  echo "[自动驱动] 通知 Rex 启动 TTS + 视频合成..."
-  openclaw agent \
-    --agent rex \
-    --session-id "autoresearch-notify" \
-    --message "$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" \
-    --deliver --channel "$NOTIFY_CHANNEL" \
-    --timeout 60 >/dev/null 2>&1 || true
+  REPORT+="\n\n请确认是否启动 TTS + 视频合成？"
 fi
+
+notify "$(echo -e "$REPORT")"
