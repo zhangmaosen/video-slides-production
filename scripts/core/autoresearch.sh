@@ -133,10 +133,15 @@ print('0')
 # 发送通知到 Telegram（通过 Rex agent）
 notify() {
   local MSG="$1"
+  local IMG="${2:-}"
+  local SEND_MSG="$MSG"
+  if [ -n "$IMG" ] && [ -f "$IMG" ]; then
+    SEND_MSG="请发送图片 ${IMG} 给用户，附带消息：${MSG}"
+  fi
   openclaw agent \
     --agent rex \
     --session-id "autoresearch-notify" \
-    --message "$MSG" \
+    --message "$SEND_MSG" \
     --deliver --channel "$NOTIFY_CHANNEL" \
     --timeout 60 >/dev/null 2>&1 &
 }
@@ -237,12 +242,12 @@ for SLIDE_NUM in $SLIDES; do
       echo "  🏆 新最高分！v${ITER} = ${SCORE}"
       notify "🏆 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100 新最高分
 
-${SCORE_REPLY:0:500}"
+${SCORE_REPLY:0:500}" "$IMG_FILE"
     else
       echo "  → 保持 v${BEST_VERSION} = ${BEST_SCORE}"
       notify "📊 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100（保持 v${BEST_VERSION}=${BEST_SCORE}）
 
-${SCORE_REPLY:0:500}"
+${SCORE_REPLY:0:500}" "$IMG_FILE"
     fi
 
     # 记录 CHANGELOG
