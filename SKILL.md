@@ -196,7 +196,8 @@ video-slides-production/
 ├── ComfyUI/                    # ComfyUI 工作流
 ├── scripts/
 │   └── core/
-│       └── gen_slide.py        # 生成图片脚本
+│       ├── gen_slide.py        # 生成单张图片
+│       └── autoresearch.sh      # Autoresearch Loop 驱动脚本（两层循环）
 └── projects/
     └── [项目名]/
         ├── project_config.json
@@ -224,6 +225,40 @@ video-slides-production/
 curl http://100.111.221.7:8188/system_stats
 ```
 
+### Autoresearch Loop（两层循环脚本）
+
+推荐使用 `autoresearch.sh` 做批量迭代，稳定且可控：
+
+```bash
+# 基本用法
+bash scripts/core/autoresearch.sh \
+  --project projects/[项目名] \
+  --slides "0 1 2 3 4" \
+  --iterations 4
+
+# 指定分辨率、关闭 Lightning
+COMFYUI_API=http://custom:8188 \
+NOTIFY_CHANNEL=telegram \
+bash scripts/core/autoresearch.sh \
+  --project projects/my-project \
+  --slides "0 1" \
+  --iterations 4 \
+  --no-lightning
+```
+
+**特性：**
+- 两层循环：slide 页数 × 每页迭代次数
+- `openclaw agent --session-id` 持久 session，上下文累积
+- 关键节点推送 Telegram（每轮分数 + 图片、新最高分、slide 完成）
+- 自动回退（低分版本不影响下一轮）
+- 配置完全从 `project_config.json` 读取（风格、分辨率等）
+
+**环境变量：**
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `COMFYUI_API` | `http://100.111.221.7:8188` | ComfyUI 地址 |
+| `NOTIFY_CHANNEL` | `telegram` | 通知频道 |
+
 ### 生成单张图片（默认 Lightning 模式）
 ```bash
 python3 scripts/core/gen_slide.py \
@@ -250,5 +285,5 @@ python3 scripts/core/gen_slide.py \
 
 ---
 
-**版本**：v10.0 (2026-04-04)
-**更新**：哪吒默认 Lightning 模式；女娲 System Prompt v5.0（字符数上限 + 致命错误清单）
+**版本**：v10.1 (2026-04-04)
+**更新**：新增 `autoresearch.sh` 两层循环脚本；项目配置完全从 `project_config.json` 读取（风格、分辨率）

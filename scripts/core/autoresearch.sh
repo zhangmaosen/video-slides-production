@@ -37,19 +37,33 @@ if [ -z "$PROJECT" ] || [ -z "$SLIDES" ]; then
 fi
 
 PROJECT_DIR="${SKILL_DIR}/${PROJECT}"
+CONFIG_FILE="${PROJECT_DIR}/project_config.json"
+
 if [ ! -d "$PROJECT_DIR" ]; then
   echo "❌ 项目目录不存在: $PROJECT_DIR"
   exit 1
 fi
 
-COMFYUI_API="http://100.111.221.7:8188"
+if [ ! -f "$CONFIG_FILE" ]; then
+  echo "❌ 配置文件不存在: $CONFIG_FILE"
+  exit 1
+fi
+
+PROJECT_NAME=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}'))['name'])")
+PROJECT_STYLE=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}'))['style'])")
+PROJECT_RESOLUTION=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}'))['resolution'])")
+RES_WIDTH=$(echo "$PROJECT_RESOLUTION" | cut -d'x' -f1)
+RES_HEIGHT=$(echo "$PROJECT_RESOLUTION" | cut -d'x' -f2)
+SLIDES_TOTAL=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}'))['slides_count'])")
+COMFYUI_API="${COMFYUI_API:-http://100.111.221.7:8188}"
+NOTIFY_CHANNEL="${NOTIFY_CHANNEL:-telegram}"
 GEN_SCRIPT="${SKILL_DIR}/scripts/core/gen_slide.py"
 TIMEOUT=180
 
 echo ""
 echo "========================================================"
 echo "  Autoresearch Loop"
-echo "  项目: ${PROJECT}"
+echo "  项目: ${PROJECT_NAME} (${PROJECT_STYLE})"
 echo "  Slides: ${SLIDES}"
 echo "  每页迭代: ${ITERATIONS} 次"
 echo "  Lightning: $([ -n "$LIGHTNING" ] && echo '是' || echo '否')"
@@ -124,13 +138,13 @@ notify() {
     openclaw agent \
       --session-id "notify-autoresearch" \
       --message "请发送图片 ${IMG} 给用户，附带消息：${MSG}" \
-      --deliver --channel telegram \
+      --deliver --channel "$NOTIFY_CHANNEL" \
       --timeout 30 >/dev/null 2>&1 &
   else
     openclaw agent \
       --session-id "notify-autoresearch" \
       --message "$MSG" \
-      --deliver --channel telegram \
+      --deliver --channel "$NOTIFY_CHANNEL" \
       --timeout 15 >/dev/null 2>&1 &
   fi
 }
@@ -164,7 +178,7 @@ for SLIDE_NUM in $SLIDES; do
   INIT_MSG="你现在负责为 slide_${SLIDE_FMT} 完成 ${ITERATIONS} 轮 Autoresearch Loop。
 
 【核心规则 - 违反任何一条 = 废稿重来】
-1. 风格：手绘漫画，混子说风格（非写实摄影）
+1. 风格：${PROJECT_STYLE}（非写实摄影）
 2. 封面页(slide_00)用 main_title 和 subtitle 作为文字
 3. 非封面页从 script/viewpoint 提取文字，禁止用封面标题
 4. 非封面页必须画故事场景，不是车辆棚拍
@@ -207,7 +221,7 @@ for SLIDE_NUM in $SLIDES; do
       --project "$PROJECT" \
       --slide "$SLIDE_FMT" \
       --version "$ITER" \
-      --width 1664 --height 928 \
+      --width "$RES_WIDTH" --height "$RES_HEIGHT" \
       $LIGHTNING 2>&1 | while IFS= read -r line; do echo "    $line"; done
     
     IMG_FILE="${PROJECT_DIR}/slides/slide_${SLIDE_FMT}_v${ITER}.png"
