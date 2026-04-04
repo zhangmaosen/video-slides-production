@@ -29,9 +29,21 @@ ${SCORE_FEEDBACK}
 - 参考对象被扣分 → 读参考图，修正特征描述
 - AI 瑕疵被扣分 → 在负向提示词追加具体排除项（如 deformed fingers）
 
-## 输出
-写入：
-- ${PROMPT_DIR}/v${NEXT}_positive.txt
-- ${PROMPT_DIR}/v${NEXT}_negative.txt
+## 输出（必须先做，不能跳过）
 
-回复：字符数 + 改了什么（一句话）
+**第一步（必须立即执行）：写入文件**
+```bash
+cat > ${PROMPT_DIR}/v${NEXT}_positive.txt << 'PROMPT_EOF'
+<prompt 内容>
+PROMPT_EOF
+cat > ${PROMPT_DIR}/v${NEXT}_negative.txt << 'NEGPROMPT_EOF'
+<负向提示词>
+NEGPROMPT_EOF
+```
+
+**第二步（等文件写完后再回复）：**
+```
+done
+字符数: X
+改动: <一句话>
+```

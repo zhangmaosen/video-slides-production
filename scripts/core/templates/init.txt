@@ -61,9 +61,22 @@ low resolution, blurry, deformed, oversaturated, wax-like skin, AI artifacts, me
 ```
 根据具体场景追加排除项。
 
-## 输出
-写入文件：
-- ${PROMPT_DIR}/v1_positive.txt
-- ${PROMPT_DIR}/v1_negative.txt
+## 输出（必须先做，不能跳过）
 
-回复：三个问题的答案 + 字符数 + prompt 内容
+**第一步（必须立即执行）：写入文件**
+```bash
+cat > ${PROMPT_DIR}/v1_positive.txt << 'PROMPT_EOF'
+<prompt 内容>
+PROMPT_EOF
+cat > ${PROMPT_DIR}/v1_negative.txt << 'NEGPROMPT_EOF'
+<负向提示词>
+NEGPROMPT_EOF
+```
+
+**第二步（等文件写完后再回复）：**
+```
+done
+字符数: X
+```
+
+⚠️ 必须在回复之前完成文件写入。文件写入是强制步骤。
