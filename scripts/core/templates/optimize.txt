@@ -1,14 +1,26 @@
-【第 ${NEXT}/${ITERATIONS} 轮：女娲优化 prompt】
+【第 ${NEXT}/${ITERATIONS} 轮：优化 slide_${SLIDE_FMT} prompt】
 
-当前最高分：v${BEST_VERSION}=${BEST_SCORE}分
+当前最高分：v${BEST_VERSION} = ${BEST_SCORE}分
 
-二郎神对 v${ITER} 的反馈：
+## 二郎神反馈
 ${SCORE_FEEDBACK}
 
-请基于 v${BEST_VERSION} 的 prompt + 二郎神反馈，生成 v${NEXT} prompt。
-读取 ${PROMPT_DIR}/v${BEST_VERSION}_positive.txt 作为基础。
+## 你的任务
+1. 读取 ${PROMPT_DIR}/v${BEST_VERSION}_positive.txt（当前最高分 prompt）
+2. 只改有问题的部分，不动本来正确的描述
+3. 重点修复二郎神[关键问题]中列出的 2-3 个问题
+4. 遵循[给女娲的修改指令]
+
+## 修改原则
+- 不要大改，只针对扣分点修改
+- 保持总字符数 400-700，不超过 800
+- 如果文字被扣分：简化文字描述，缩短字数，用数字代替中文
+- 如果场景被扣分：调整场景描述，增加/减少细节
+- 如果 AI 瑕疵被扣分：在负向提示词追加具体排除项
+
+## 输出
 写入：
 - ${PROMPT_DIR}/v${NEXT}_positive.txt
 - ${PROMPT_DIR}/v${NEXT}_negative.txt
 
-回复确认 prompt 已写入 + 字符数 + 主要改动点
+回复：字符数 + 改了什么（一句话）
