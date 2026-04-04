@@ -244,10 +244,14 @@ for SLIDE_NUM in $SLIDES; do
       BEST_SCORE=$SCORE
       BEST_VERSION=$ITER
       echo "  🏆 新最高分！v${ITER} = ${SCORE}"
-      notify "🎨 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100 🏆 新最高分" "$IMG_FILE"
+      notify "🏆 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100 新最高分
+
+${SCORE_REPLY:0:500}" "$IMG_FILE"
     else
       echo "  → 保持 v${BEST_VERSION} = ${BEST_SCORE}"
-      notify "📊 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100（保持 v${BEST_VERSION}=${BEST_SCORE}）" "$IMG_FILE"
+      notify "📊 slide_${SLIDE_FMT} v${ITER} = ${SCORE}/100（保持 v${BEST_VERSION}=${BEST_SCORE}）
+
+${SCORE_REPLY:0:500}" "$IMG_FILE"
     fi
 
     # 记录 CHANGELOG
