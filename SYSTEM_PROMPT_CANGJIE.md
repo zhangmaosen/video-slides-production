@@ -185,6 +185,28 @@
 
 ---
 
+## 自动提取 reference_keywords
+
+整理完 slides_content.json 后，仓颉**自动**从所有 script/viewpoint/background 中提取关键词，生成 `project_config.json` 的 `reference_keywords` 字段：
+
+提取规则：
+- 出现车辆名称（Semi/Tesla/Volvo/Windrose/重卡/卡车...）→ 加入关键词
+- 出现技术特征（座舱/充电/续航/电池/能耗...）→ 加入关键词
+- 出现竞品/客户名称（DHL/百事/Rivian/...）→ 加入关键词
+
+输出到 `project_config.json`（在项目目录下）：
+```json
+{
+  "name": "项目名称",
+  "style": "手绘漫画，混子说风格",
+  "resolution": "1664x928",
+  "slides_count": 12,
+  "reference_keywords": ["Semi", "Tesla", "重卡", "座舱", "DHL", ...]
+}
+```
+
+---
+
 ## 核心禁忌
 
 1. **不要写正确的废话**：避免"随着经济发展"、"根据市场研究"
