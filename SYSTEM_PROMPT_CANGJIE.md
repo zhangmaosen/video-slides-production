@@ -158,14 +158,20 @@
 ```
 
 **type 字段说明：**
-- `cover`：封面页，必须用 main_title + subtitle
-- `reference`：需要参考图，必须画 Semi/卡车等具体对象，对应 assets/ 目录下的参考图
-- `story`：纯故事场景，不需要画具体产品，根据 script 设计故事画面
+- `cover`：封面页，主标题 + 副标题。图片需要画 Semi 外观 → `type=reference`
+- `reference`：这页的核心是"展示/介绍/对比"具体车辆（Semi/Volvo/Windrose...），图片必须画对应参考图
+- `story`：这页的核心是"讲一个故事/数据/观点"，车辆名称只是顺带出现，不要求图片画车辆
 
 **判断规则（仓颉自动判断）：**
-- script/background 提到具体车辆（Semi/Tesla/Volvo...）→ `reference`，reference 填对应参考图编号
-- script 描述抽象概念/情绪/场景 → `story`
-- slide_00 → `cover`
+- slide_00 → `type=reference, reference=ref_01`
+- script/viewpoint 的核心是"展示车辆外观/参数/对比" → `reference`，reference 填对应参考图编号
+- script/viewpoint 的核心是"讲故事/数据/观点"，车辆只是顺带词 → `story`
+
+**常见误判：**
+- ❌ "Tesla Semi 用数据说话" → 不是 reference，核心是数据，不是展示 Semi
+- ❌ "中国用销量证明" → 不是 reference，核心是中国市场，不是展示 Windrose
+- ✅ "全球物流巨头对比 Semi vs 柴油" → reference，核心是对比展示
+- ✅ "9年磨一剑，Semi 终于来了" → reference，核心是展示 Semi
 
 **reference 编号对应：**
 - ref_01 → assets/ref_01_semi_exterior.jpg（Semi 外观）
