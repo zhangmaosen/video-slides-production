@@ -130,19 +130,20 @@ print('0')
 "
 }
 
-# 发送通知到 Telegram（关键节点推送）
+# 发送通知到 Telegram（通过 Rex agent）
 notify() {
   local MSG="$1"
   local IMG="${2:-}"
   if [ -n "$IMG" ] && [ -f "$IMG" ]; then
-    # 发送图片+文字
     openclaw agent \
+      --agent rex \
       --session-id "notify-autoresearch" \
       --message "请发送图片 ${IMG} 给用户，附带消息：${MSG}" \
       --deliver --channel "$NOTIFY_CHANNEL" \
       --timeout 30 >/dev/null 2>&1 &
   else
     openclaw agent \
+      --agent rex \
       --session-id "notify-autoresearch" \
       --message "$MSG" \
       --deliver --channel "$NOTIFY_CHANNEL" \
@@ -328,6 +329,7 @@ if [ "$ALL_PASS" = true ]; then
   echo ""
   echo "[自动驱动] 通知 Rex 启动 TTS + 视频合成..."
   openclaw agent \
+    --agent rex \
     --to 8666925685 \
     --message "Autoresearch Loop 已完成！项目：${PROJECT_NAME}，slides: ${SLIDES}。\n\n$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" \
     --deliver --channel "$NOTIFY_CHANNEL" \
