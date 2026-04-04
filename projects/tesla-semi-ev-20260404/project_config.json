@@ -1,0 +1,15 @@
+{
+  "name": "特斯拉Semi重卡",
+  "created": "2026-04-04",
+  "style": "电影级写实",
+  "resolution": "1280x800",
+  "slides_count": null,
+  "has_maosen_ip": true,
+  "has_maosen_voice": true,
+  "reference_images": [
+    "assets/ref_01_cabin.png",
+    "assets/ref_02_exterior.png",
+    "assets/ref_03_volvo.png",
+    "assets/ref_04_windrose.png"
+  ]
+}
