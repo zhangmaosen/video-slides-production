@@ -303,13 +303,33 @@ echo "========================================================"
 
 # 构建汇报消息
 REPORT="✅ Autoresearch Loop 完成\n项目：${PROJECT_NAME}\n\n"
+ALL_PASS=true
 for SLIDE_NUM in $SLIDES; do
   SLIDE_FMT=$(printf "%02d" "$SLIDE_NUM")
   CL_FILE="${PROJECT_DIR}/prompts/slide_${SLIDE_FMT}/CHANGELOG.md"
   if [ -f "$CL_FILE" ]; then
     BEST_LINE=$(grep "最终选择" "$CL_FILE" 2>/dev/null || echo "未完成")
     REPORT+="slide_${SLIDE_FMT}: ${BEST_LINE}\n"
+  else
+    REPORT+="slide_${SLIDE_FMT}: 未完成\n"
+    ALL_PASS=false
   fi
 done
 
+REPORT+="\n下一步：TTS 语音生成 + FFmpeg 视频合成"
+
 notify "$(echo -e "$REPORT")"
+
+# ============================================================
+# 自动驱动下一步：通知 Rex 启动 TTS + 合成
+# ============================================================
+
+if [ "$ALL_PASS" = true ]; then
+  echo ""
+  echo "[自动驱动] 通知 Rex 启动 TTS + 视频合成..."
+  openclaw agent \
+    --to 8666925685 \
+    --message "Autoresearch Loop 已完成！项目：${PROJECT_NAME}，slides: ${SLIDES}。\n\n$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" \
+    --deliver --channel "$NOTIFY_CHANNEL" \
+    --timeout 30 >/dev/null 2>&1 || true
+fi
