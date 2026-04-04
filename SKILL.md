@@ -58,14 +58,32 @@ d) 自定义
 
 ## ✅ 配置确认
 
-完成后，我会：
+配置完成后，我会：
 
-1. **仓颉** 整理内容 → `slides_content.json`
-2. **女娲** 生成提示词 → `prompts/slide_XX/`
-3. **哪吒** 生成图片 → `slides/slide_XX.png`
-4. **二郎神** 评分（10次迭代选最高）
-5. **TTS** 生成语音
-6. **FFmpeg** 合成视频
+1. **创建项目目录**
+```
+projects/[项目名]/
+├── project_config.json    # 项目配置
+├── script.md             # 原始报告
+├── slides_content.json   # 仓颉整理后的内容
+├── prompts/              # 提示词
+├── slides/               # 生成的图片
+└── assets/               # 参考图（可选）
+```
+
+2. **生成项目配置文件** `project_config.json`
+
+3. **仓颉** 整理内容 → `slides_content.json`
+
+4. **女娲** 生成提示词 → `prompts/slide_XX/`
+
+5. **哪吒** 生成图片 → `slides/slide_XX.png`
+
+6. **二郎神** 评分（10次迭代选最高）
+
+7. **TTS** 生成语音
+
+8. **FFmpeg** 合成视频
 
 ---
 
@@ -118,15 +136,16 @@ video-slides-production/
 │       └── gen_slide.py        # 生成图片脚本
 └── projects/
     └── [项目名]/
-        ├── project_config.json      # 项目配置
-        ├── slides_content.json     # 幻灯片内容
-        ├── script.md               # 原始报告
-        ├── prompts/               # 提示词（版本化）
+        ├── project_config.json    # 项目配置（自动生成）
+        ├── script.md             # 原始报告
+        ├── slides_content.json   # 仓颉整理后的内容
+        ├── prompts/              # 提示词（版本化）
         │   └── slide_XX/
         │       ├── v1_positive.txt
         │       ├── v1_negative.txt
         │       └── CHANGELOG.md
-        └── slides/                # 生成的图片
+        ├── slides/               # 生成的图片
+        └── assets/               # 参考图
 ```
 
 ---
@@ -146,7 +165,23 @@ python3 scripts/core/gen_slide.py \
   --version 1
 ```
 
+### project_config.json 格式
+```json
+{
+  "name": "项目名称",
+  "created": "2026-04-04",
+  "style": "混子说 + 硬核工程拆解爆炸图风格",
+  "resolution": "1280x800",
+  "slides_count": 18,
+  "has_maosen_ip": true,
+  "has_maosen_voice": true,
+  "reference_images": [
+    "assets/tesla_semi_exterior.png"
+  ]
+}
+```
+
 ---
 
-**版本**：v6.0 (2026-04-04)
-**更新**：添加用户引导流程，仓颉支持报告文档转逐字稿
+**版本**：v7.0 (2026-04-04)
+**更新**：添加项目目录和配置文件生成到用户引导流程
