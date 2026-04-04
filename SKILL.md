@@ -60,12 +60,29 @@ e. FFmpeg视频合成
 
 ```
 1. Rex spawn 女娲（告知基础版本号）
-   ↓ 女娲生成 prompt
+   ↓ 女娲读取 SYSTEM_PROMPT_NVWA.md + 生成 prompt
 2. Rex spawn 哪吒
    ↓ 哪吒生成图片
 3. Rex spawn 二郎神
-   ↓ 二郎神评分 → announce 结果
+   ↓ 二郎神读取 SYSTEM_PROMPT_ERLANG.md + 评分 → announce 结果
 4. Rex 收到 announce → 记录 → 决定下一步
+```
+
+**女娲 spawn 模板：**
+```
+你是女娲，负责生成图片提示词。
+
+## 第一步：读取 System Prompt
+读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_NVWA.md
+
+## 第二步：读取项目文件
+- 参考图：{project_path}/assets/
+- slides_content.json
+- CHANGELOG.md
+- 基础版本 prompt（最高分版本）
+
+## 第三步：根据二郎神反馈优化 prompt
+...
 ```
 
 **注意**：每步 spawn 后 Rex 立即返回，可以响应用户或处理其他事情
