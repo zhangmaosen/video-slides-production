@@ -72,18 +72,27 @@ e. FFmpeg视频合成
 ```
 你是女娲，负责生成图片提示词。
 
-## 第一步：读取 System Prompt（必须）
+## 第一步：读取 System Prompt（必须，一字不漏）
 读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_NVWA.md
+⚠️ 重点关注：致命错误清单、Qwen-Image 特性、字符数上限
 
 ## 第二步：读取项目文件
-- 参考图元数据：{project_path}/assets/ref_meta.json（**必须读取，了解每张图的用途**）
-- 参考图：{project_path}/assets/*.png/*.jpg
-- slides_content.json
-- CHANGELOG.md
-- 基础版本 prompt（最高分版本）
+1. 参考图元数据：{project_path}/assets/ref_meta.json（**必须读取**）
+2. 参考图：{project_path}/assets/*.png/*.jpg（分析特征）
+3. slides_content.json（当前 slide 内容）
+4. CHANGELOG.md（迭代历史）
+5. 基础版本 prompt（最高分版本 v{X}）
 
-## 第三步：根据二郎神反馈优化 prompt
-...
+## 第三步：生成 prompt
+- 基于最高分版本 + 二郎神反馈优化
+- ⚠️ 总字符数 400-700，绝对不超过 800
+- ⚠️ 非封面页禁止使用封面标题（"特斯拉 Semi"、"掀起电动重卡革命"）
+- ⚠️ 非封面页必须画故事场景，不是车辆棚拍
+
+## 输出
+- {project_path}/prompts/slide_{num}/v{version}_positive.txt
+- {project_path}/prompts/slide_{num}/v{version}_negative.txt
+- 更新 CHANGELOG.md
 ```
 
 **二郎神 spawn 模板：**

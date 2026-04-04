@@ -37,8 +37,8 @@ def generate_image(
     negative_prompt: str,
     output_path: str,
     seed: int = None,
-    width: int = 1280,
-    height: int = 800,
+    width: int = 1664,
+    height: int = 928,
     lightning: bool = False,
     api_url: str = API_URL
 ):
@@ -70,24 +70,38 @@ def generate_image(
     # 加载工作流
     workflow = load_workflow()
     
+    # 先找到 KSampler，通过连接关系确定正向/负向节点 ID
+    positive_node_id = None
+    negative_node_id = None
+    for node_id, node in workflow.items():
+        if node.get('class_type') == 'KSampler':
+            pos_input = node.get('inputs', {}).get('positive', [])
+            neg_input = node.get('inputs', {}).get('negative', [])
+            if isinstance(pos_input, list) and len(pos_input) > 0:
+                positive_node_id = pos_input[0]
+            if isinstance(neg_input, list) and len(neg_input) > 0:
+                negative_node_id = neg_input[0]
+    
+    print(f"  Positive node: {positive_node_id}")
+    print(f"  Negative node: {negative_node_id}")
+    
     # 修改工作流
     for node_id, node in workflow.items():
         class_type = node.get('class_type')
         inputs = node.get('inputs', {})
         
         if class_type == 'CLIPTextEncode':
-            # 设置提示词
+            # 通过 KSampler 连接关系判断正向/负向
             if 'text' in inputs:
-                if 'negative' in node_id.lower() or 'neg' in node_id.lower():
+                if node_id == negative_node_id:
                     inputs['text'] = negative_prompt
-                else:
+                elif node_id == positive_node_id:
                     inputs['text'] = positive_prompt
         
         elif class_type == 'EmptySD3LatentImage':
-            # 设置分辨率和 seed
+            # 设置分辨率（不设置 seed，该节点没有 seed 字段）
             inputs['width'] = width
             inputs['height'] = height
-            inputs['seed'] = seed
         
         elif class_type == 'PrimitiveBoolean':
             # Lightning 模式开关
