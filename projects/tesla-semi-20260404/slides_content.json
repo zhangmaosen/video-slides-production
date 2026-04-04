@@ -1,13 +1,14 @@
 {
   "slide_00": {
-    "type": "cover",
+    "type": "reference",
     "title": "封面",
     "main_title": "特斯拉 Semi",
     "subtitle": "掀起电动重卡革命",
     "viewpoint": "100年没变过的重卡，被一个造火箭的搅局了",
     "script": "深夜，美国高速公路。一辆82吨的重卡呼啸而过——没有发动机轰鸣，没有柴油味，只有电流的轻微嗡鸣。副驾驶睡得正香，司机哼着小曲。这不是科幻，这是2026年的现实。特斯拉Semi，掀翻了一个100年没有变过的行业。",
     "background": "报告来源：特斯拉Semi上市评价与全球电动卡车市场洞察（2026年）；Tesla Semi续航500英里，能耗1.7kWh/mile，2026年大规模量产，年产能5万辆。",
-    "overlay_text": "特斯拉 Semi"
+    "overlay_text": "特斯拉 Semi",
+    "reference": "ref_01"
   },
   "slide_01": {
     "type": "story",
@@ -37,8 +38,8 @@
     "overlay_text": "风阻 0.4"
   },
   "slide_04": {
-    "type": "story",
-    "reference": null,
+    "type": "reference",
+    "reference": "ref_01",
     "title": "实测1.55度电/英里：让柴油车汗颜的真实数据",
     "viewpoint": "百事可乐、DHL、ArcBest、RoadOne四家联手，实测Semi能耗碾压预期",
     "script": "纸上谈兵谁都会，真刀真枪见真章。百事可乐、DHL、ArcBest、RoadOne，四家物流巨头联合NACFE，在真实路况上实测Semi：ArcBest满载跑三周、累计4494英里——能耗1.55度电每英里，比官方标称还低；DHL跑390英里长途，载重75000磅——1.72度电每英里；RoadOne在奥克兰港拉重货爬大坡——也才1.90度电每英里。四家全部达标甚至更优，这就是量产实力。",

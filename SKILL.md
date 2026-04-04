@@ -10,7 +10,7 @@
 2. **报告文档** → 仓颉整理为 `slides_content.json`
 3. **视觉风格** → 写入 `project_config.json`
 4. **参考图** → 保存到 `assets/` + 生成 `ref_meta.json`
-   仓颉同时给每页标注 type（cover/reference/story），决定是否使用参考图
+   type 分类由人工处理（不需要仓颉做）
 5. **确认配置** → 展示摘要，等用户确认
 
 ### 启动 Autoresearch Loop

@@ -193,3 +193,14 @@
 ## 输出格式
 
 **只输出 JSON，不要其他内容。**
+
+---
+
+## 注意事项
+
+**仓颉只负责生成内容，不管 type 分类。**
+type 分类由人工或独立流程处理。
+仓颉生成的 slides_content.json 只需包含：
+- title、viewpoint、script、background
+- cover 页包含 main_title、subtitle
+- 不需要 type/reference/overlay_text 字段
