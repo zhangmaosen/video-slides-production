@@ -126,10 +126,12 @@
 
 ## 输出格式
 
-输出标准 JSON：
+每页必须包含 `type` 字段（由仓颉判断写入）：
+
 ```json
 {
   "slide_00": {
+    "type": "cover",
     "title": "封面",
     "main_title": "特斯拉 Semi",
     "subtitle": "掀起电动重卡革命",
@@ -138,72 +140,38 @@
     "background": "从报告中提取的数据和事实"
   },
   "slide_01": {
+    "type": "reference",
+    "reference": "ref_01",
     "title": "页面标题",
     "viewpoint": "本页核心，一句话",
     "script": "开头钩子 + 核心内容 + 记忆点",
+    "background": "数据来源和补充信息"
+  },
+  "slide_02": {
+    "type": "story",
+    "title": "页面标题",
+    "viewpoint": "本页核心，一句话",
+    "script": "纯故事场景，不画具体产品",
     "background": "数据来源和补充信息"
   }
 }
 ```
 
----
+**type 字段说明：**
+- `cover`：封面页，必须用 main_title + subtitle
+- `reference`：需要参考图，必须画 Semi/卡车等具体对象，对应 assets/ 目录下的参考图
+- `story`：纯故事场景，不需要画具体产品，根据 script 设计故事画面
 
-## 示例
+**判断规则（仓颉自动判断）：**
+- script/background 提到具体车辆（Semi/Tesla/Volvo...）→ `reference`，reference 填对应参考图编号
+- script 描述抽象概念/情绪/场景 → `story`
+- slide_00 → `cover`
 
-### 输入
-```
-特斯拉 Semi 2026 年量产，售价 18-30 万美元，续航 500 英里。
-能耗 1.7kWh/mile，比柴油车低 60%。
-百事可乐、DHL 已下单。
-```
-
-### 旧版输出（平淡）
-```json
-{
-  "slide_00": {
-    "title": "封面",
-    "viewpoint": "特斯拉 Semi 掀翻燃油卡车",
-    "script": "特斯拉 Semi 掀翻燃油卡车：一场输不起的商业货运革命",
-    "background": "Tesla Semi 2026 年量产，售价 18-30 万美元"
-  }
-}
-```
-
-### 新版输出（有爽感）
-```json
-{
-  "slide_00": {
-    "title": "封面",
-    "main_title": "特斯拉 Semi",
-    "subtitle": "掀起电动重卡革命",
-    "viewpoint": "100 年没变过的重卡，被一个造火箭的搅局了",
-    "script": "你有没有想过，有一天，满载货物的重型卡车可以零排放、零噪音地在高速公路上飞驰？这不是科幻——特斯拉 Semi 已经把它变成了现实。2026年，百年货运史上的最大变局，已经到来。",
-    "background": "Tesla Semi 2026 年量产；续航 500 英里；能耗 1.7kWh/mile，比柴油车低 60%"
-  }
-}
-```
-
----
-
-## 自动提取 reference_keywords
-
-整理完 slides_content.json 后，仓颉**自动**从所有 script/viewpoint/background 中提取关键词，生成 `project_config.json` 的 `reference_keywords` 字段：
-
-提取规则：
-- 出现车辆名称（Semi/Tesla/Volvo/Windrose/重卡/卡车...）→ 加入关键词
-- 出现技术特征（座舱/充电/续航/电池/能耗...）→ 加入关键词
-- 出现竞品/客户名称（DHL/百事/Rivian/...）→ 加入关键词
-
-输出到 `project_config.json`（在项目目录下）：
-```json
-{
-  "name": "项目名称",
-  "style": "手绘漫画，混子说风格",
-  "resolution": "1664x928",
-  "slides_count": 12,
-  "reference_keywords": ["Semi", "Tesla", "重卡", "座舱", "DHL", ...]
-}
-```
+**reference 编号对应：**
+- ref_01 → assets/ref_01_semi_exterior.jpg（Semi 外观）
+- ref_02 → assets/ref_02_windrose.jpg（Windrose 外观）
+- ref_03 → assets/ref_03_semi_cabin.png（Semi 座舱）
+- ref_04 → assets/ref_04_volvo.jpg（Volvo 外观）
 
 ---
 

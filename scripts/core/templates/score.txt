@@ -12,14 +12,10 @@
 
 ## 第二步：判断评分路径
 
-从 ${PROJECT_DIR}/project_config.json 读取 reference_keywords 列表。
-读取 slides_content 中该页的 script/background。
-
-**判断规则：**
-1. slide_00 → **路径 A**
-2. script/background 中出现 reference_keywords 中的任何关键词 → **路径 A**
-3. ref_meta 的"适用slides"字段与该页内容匹配 → **路径 A**
-4. 以上都不符合 → **路径 B**
+读取 slides_content 中该页的 type 字段：
+- type=cover → **路径 A**
+- type=reference → **路径 A**（需对比 reference 指定的参考图）
+- type=story → **路径 B**
 
 ## 评分标准(100分制)
 

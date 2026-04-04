@@ -10,10 +10,7 @@
 2. **报告文档** → 仓颉整理为 `slides_content.json`
 3. **视觉风格** → 写入 `project_config.json`
 4. **参考图** → 保存到 `assets/` + 生成 `ref_meta.json`
-   仓颉同时从 slides_content.json 的 script/viewpoint/background 中**自动提取** reference_keywords：
-   - 出现车辆名称（Semi/Tesla/Volvo...）→ 加入关键词
-   - 出现技术术语（座舱/充电/续航...）→ 加入关键词
-   → 写入 `project_config.json` 的 `reference_keywords` 字段
+   仓颉同时给每页标注 type（cover/reference/story），决定是否使用参考图
 5. **确认配置** → 展示摘要，等用户确认
 
 ### 启动 Autoresearch Loop
@@ -221,7 +218,6 @@ video-slides-production/
   "slides_count": 12,
   "has_maosen_ip": true,
   "has_maosen_voice": true,
-  "reference_keywords": ["Semi", "Tesla", "卡车", "重卡", "座舱", "竞品名"],
   "reference_images": ["assets/ref_01.jpg", "assets/ref_02.jpg"]
 }
 ```

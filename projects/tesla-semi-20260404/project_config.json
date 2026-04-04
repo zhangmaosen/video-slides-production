@@ -7,7 +7,6 @@
   "has_maosen_ip": true,
   "has_maosen_voice": true,
   "maosen_ip_desc": "Q版大头卡通，浓密黑发，八字浓眉，白色T恤，自信表情，混子说风格插图",
-  "reference_keywords": ["Semi", "Tesla", "卡车", "重卡", "电卡", "座舱", "驾驶位", "方向盘", "触控屏", "Volvo", "Windrose", "DHL", "百事"],
   "reference_images": [
     "assets/ref_01_semi_exterior.jpg",
     "assets/ref_02_windrose.jpg",

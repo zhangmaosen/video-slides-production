@@ -16,11 +16,10 @@
 
 ## 第二步：判断页面类型
 
-从 ${PROJECT_DIR}/project_config.json 读取 reference_keywords 列表。
-
-- **封面页(slide_00)**：产品英雄镜头 + main_title + subtitle
-- **需要参考图的页**：script/background 中出现 reference_keywords 的任何关键词 → 场景中融入 Semi/参考对象
-- **纯故事场景页**：不需要画参考图 → 根据逐字稿设计场景
+从 slides_content 中该页的 type 字段判断：
+- type=cover → 封面页，产品英雄镜头 + main_title + subtitle
+- type=reference → 必须画 reference 指定的 Semi/卡车等参考对象
+- type=story → 纯故事场景，不画具体产品，根据 script 设计故事画面
 
 ## 第三步：提炼画面（先想清楚再写）
 
