@@ -1,186 +1,138 @@
 # Video Slides Production - 视频幻灯片生产技能
 
----
+## 概述
 
-## 🚀 Rex 交互规则（核心原则）
+将报告/逐字稿转化为视频幻灯片的完整 Pipeline：
 
-**Rex 完全非阻塞模式：spawn 后立即返回，不等待结果**
-
-### 核心行为
-1. **Rex 是调度者**：spawn 团队成员后**立即返回**，不等待
-2. **不阻塞**：`sessions_spawn` 是非阻塞的，Rex 可以随时响应用户
-3. **并行工作**：女娲/哪吒/二郎神在后台并行执行
-4. **自动汇报**：团队成员完成后自动 announce 结果
-
-### 工作流程
 ```
-用户指令 → Rex spawn 团队 → Rex 立即响应用户 → 团队后台工作 → announce 结果
-                                              ↓
-                                    用户可随时发送其他指令
-```
-
-### 示例
-```
-用户：生成 slide_00
-Rex：spawn 女娲 + 哪吒 + 二郎神 → 立即回复"已启动，正在生成..."
-用户：可以问其他问题或发其他指令
-Rex：响应用户的其他指令
-二郎神 announce 回来 → Rex 处理评分结果
+报告 → 逐字稿 → slides_content.json → 图片生成(Autoresearch) → TTS → 视频合成
 ```
 
 ---
 
-## 团队成员
+## 快速开始
 
-| 角色 | 职责 | System Prompt |
-|------|------|---------------|
-| **仓颉** | 报告 → 逐字稿 | `SYSTEM_PROMPT_CANGJIE.md` |
-| **女娲** | 生成和优化 prompt | `SYSTEM_PROMPT_NVWA.md` |
-| **哪吒** | 生成图片 | - |
-| **二郎神** | 评分（10次迭代选最高） | `SYSTEM_PROMPT_ERLANG.md` |
-| **Rex** | 协调、记录、决策 | - |
+### 1. 新建项目
+
+```bash
+mkdir -p projects/my-project/{assets,prompts,slides}
+```
+
+创建 `project_config.json`：
+```json
+{
+  "name": "项目名称",
+  "style": "手绘漫画，混子说风格",
+  "resolution": "1664x928",
+  "slides_count": 12
+}
+```
+
+准备 `slides_content.json`（逐字稿）和 `assets/`（参考图 + ref_meta.json）。
+
+### 2. 运行 Autoresearch Loop
+
+```bash
+bash scripts/core/autoresearch.sh \
+  --project projects/my-project \
+  --slides "0 1 2 3 4" \
+  --iterations 4
+```
+
+### 3. 查看结果
+
+每轮迭代会推送到 Telegram：图片 + 评分详情。
+跑完后推送汇总报告 + 询问是否启动 TTS。
 
 ---
 
 ## 核心流程
 
-```
-a. 报告文档 → slides_content.json（仓颉）
-b. 素材整理（图片、茂森IP）
-c. Autoresearch Loop（最多10次迭代）
-d. TTS生成
-e. FFmpeg视频合成
-```
+| 阶段 | 工具 | 说明 |
+|------|------|------|
+| a. 逐字稿整理 | 仓颉 | 报告 → slides_content.json |
+| b. 素材准备 | 手动 | 参考图 + ref_meta.json |
+| **c. 图片生成** | **autoresearch.sh** | **两层循环 × 4轮迭代** |
+| d. TTS 语音 | ComfyUI Qwen-TTS | 茂森语音 Clone |
+| e. 视频合成 | FFmpeg | 音画同步 + 字幕 |
 
 ---
 
-## Autoresearch Loop（非阻塞）
+## Autoresearch Loop
 
-每个 slide 的迭代流程：
+**驱动脚本：** `scripts/core/autoresearch.sh`
+
+### 架构
 
 ```
-1. Rex spawn 女娲（告知基础版本号）
-   ↓ 女娲读取 SYSTEM_PROMPT_NVWA.md + 生成 prompt
-2. Rex spawn 哪吒
-   ↓ 哪吒生成图片
-3. Rex spawn 二郎神
-   ↓ 二郎神读取 SYSTEM_PROMPT_ERLANG.md + 评分 → announce 结果
-4. Rex 收到 announce → 记录 → 决定下一步
+bash 两层循环（程序层控制，不靠 LLM 记忆）
+├── 外层：遍历 slides (0, 1, 2, ...)
+│   └── 内层：每个 slide 迭代 N 次
+│       ├── 1. 女娲生成/优化 prompt（openclaw agent 持久 session）
+│       ├── 2. 哪吒生成图片（gen_slide.py → ComfyUI API）
+│       ├── 3. 二郎神评分（同一 session，上下文累积）
+│       └── 4. ≥90 提前退出 / 记录最高分
+└── 跑完：推送汇总 → 驱动下一步
 ```
 
-**女娲 spawn 模板：**
-```
-你是女娲，负责生成图片提示词。
+### 关键设计
 
-## 第一步：读取 System Prompt（必须，一字不漏）
-读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_NVWA.md
-⚠️ 重点关注：致命错误清单、Qwen-Image 特性、字符数上限
+- **持久 session**：每个 slide 独立 `--session-id`，女娲记得之前所有 prompt 和评分
+- **循环在 bash 层**：不依赖 LLM 记忆循环计数
+- **自动回退**：低分版本不影响下一轮（基于最高分版本优化）
+- **Telegram 推送**：每轮图片+评分详情、新最高分、slide 完成、最终汇总
 
-## 第二步：读取项目文件
-1. 参考图元数据：{project_path}/assets/ref_meta.json（**必须读取**）
-2. 参考图：{project_path}/assets/*.png/*.jpg（分析特征）
-3. slides_content.json（当前 slide 内容）
-4. CHANGELOG.md（迭代历史）
-5. 基础版本 prompt（最高分版本 v{X}）
+### 参数
 
-## 第三步：生成 prompt
-- 基于最高分版本 + 二郎神反馈优化
-- ⚠️ 总字符数 400-700，绝对不超过 800
-- ⚠️ 非封面页禁止使用封面标题（"特斯拉 Semi"、"掀起电动重卡革命"）
-- ⚠️ 非封面页必须画故事场景，不是车辆棚拍
-
-## 输出
-- {project_path}/prompts/slide_{num}/v{version}_positive.txt
-- {project_path}/prompts/slide_{num}/v{version}_negative.txt
-- 更新 CHANGELOG.md
+```bash
+bash scripts/core/autoresearch.sh \
+  --project projects/[项目名] \     # 项目目录（相对 skill 根）
+  --slides "0 1 2 3 4" \           # slide 编号
+  --iterations 4 \                  # 每页迭代次数（默认 4）
+  --no-lightning                    # 关闭 Lightning（默认开启）
 ```
 
-**二郎神 spawn 模板：**
-```
-你是二郎神，负责评分图片。
+### 环境变量
 
-## 第一步：读取 System Prompt（必须）
-读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_ERLANG.md
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `COMFYUI_API` | `http://100.111.221.7:8188` | ComfyUI 地址 |
+| `NOTIFY_CHANNEL` | `telegram` | 通知频道 |
 
-## 第二步：读取参考图元数据（必须）
-读取：{project_path}/assets/ref_meta.json
-了解每张参考图的用途，评分时只对比参考的要素。
+### Prompt 模板
 
-## 第三步：读取参考图和待评分图片
-- 参考图：{project_path}/assets/
-- 待评分图片：{project_path}/slides/slide_XX_vN.png
+三个模板在 `scripts/core/templates/`，修改 prompt 只需编辑 `.txt` 文件：
 
-## 第四步：评分并输出结果
-...
-```
+| 文件 | 用途 | 变量 |
+|------|------|------|
+| `init.txt` | 女娲首次生成 prompt | `${SLIDE_FMT}`, `${PROJECT_STYLE}`, `${PROJECT_DIR}` |
+| `score.txt` | 二郎神评分 | `${ITER}`, `${ITERATIONS}`, `${IMG_FILE}` |
+| `optimize.txt` | 女娲优化 prompt | `${NEXT}`, `${BEST_VERSION}`, `${SCORE_FEEDBACK}` |
 
-**仓颉 spawn 模板：**
-```
-你是仓颉，负责整理报告内容。
-
-## 第一步：读取 System Prompt（必须）
-读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_CANGJIE.md
-
-## 第二步：读取报告文档
-...
-```
-
-**注意**：每步 spawn 后 Rex 立即返回，可以响应用户或处理其他事情
+变量通过 `envsubst` 自动替换。
 
 ---
 
-## 项目配置向导
+## 团队角色
 
-当用户说"开始新项目"时，逐步引导：
+| 角色 | 职责 | System Prompt | 使用方式 |
+|------|------|---------------|----------|
+| **仓颉** | 报告 → 逐字稿 | `SYSTEM_PROMPT_CANGJIE.md` | Rex spawn |
+| **女娲** | 生成/优化 prompt | `SYSTEM_PROMPT_NVWA.md` | autoresearch.sh 内 |
+| **哪吒** | 生成图片 | - | gen_slide.py |
+| **二郎神** | 评分图片 | `SYSTEM_PROMPT_ERLANG.md` | autoresearch.sh 内 |
 
-### 步骤
-1. 项目名称
-2. 报告文档
-3. 视觉风格
-4. 参考图（**同时收集参考图用途说明**）
-5. 茂森 IP
-6. 茂森语音
-7. 输出分辨率
+---
 
-每步等待用户回复后再进行下一步。
+## 评分标准（二郎神）
 
-### 步骤 4：参考图说明（重要！）
+详见 `SYSTEM_PROMPT_ERLANG.md`
 
-用户发送参考图时，必须同时询问并记录每张图的用途：
-
-```
-请为每张参考图说明用途：
-- ref_01.png：用于参考 [主体特征]，不是 [背景/其他元素]
-- ref_02.png：用于参考 [外观/车型]，不是 [背景/其他元素]
-...
-```
-
-示例：
-```
-用户：发送 ref_02_exterior.png
-Rex：请说明这张图参考什么？
-用户：参考 Tesla Semi 的外观特征（车身、车灯、比例），不是背景
-Rex：已记录：ref_02_exterior.png → 参考 Semi 外观，不是背景
-```
-
-**参考图说明保存到：**
-- `assets/ref_meta.json` - 参考图元数据
-
-**ref_meta.json 格式：**
-```json
-{
-  "ref_01_cabin.png": {
-    "用途": "参考 Semi 座舱内部特征（方向盘、显示屏、驾驶位）",
-    "忽略": "背景"
-  },
-  "ref_02_exterior.png": {
-    "用途": "参考 Semi 外观特征（车身、车灯、比例）",
-    "忽略": "纯白棚拍背景"
-  }
-}
-```
-
-**女娲读取：** 女娲生成 prompt 时必须读取 `ref_meta.json`，知道每张参考图的正确用途。
+| 维度 | 分值 | 子项 |
+|------|------|------|
+| 文字准确性 | 30分 | 主标题(10) + 副标题/数据(10) + 清晰度(10) |
+| 场景内容 | 40分 | 有参考图：造型+特征+细节+比例；无参考图：场景+叙事+细节 |
+| 整体表现 | 30分 | 视觉冲击力(10) + 风格一致性(10) + AI瑕疵(10) |
 
 ---
 
@@ -188,78 +140,58 @@ Rex：已记录：ref_02_exterior.png → 参考 Semi 外观，不是背景
 
 ```
 video-slides-production/
-├── SKILL.md                     # 本文档
-├── SYSTEM_PROMPT_NVWA.md        # 女娲 System Prompt
-├── SYSTEM_PROMPT_CANGJIE.md     # 仓颉 System Prompt
-├── SYSTEM_PROMPT_ERLANG.md      # 二郎神 System Prompt
-├── AUTORESEARCH_LOOP.md         # Autoresearch 循环流程
-├── ComfyUI/                    # ComfyUI 工作流
+├── SKILL.md                          # 本文档
+├── SYSTEM_PROMPT_NVWA.md             # 女娲 System Prompt (v5.0)
+├── SYSTEM_PROMPT_CANGJIE.md          # 仓颉 System Prompt
+├── SYSTEM_PROMPT_ERLANG.md           # 二郎神 System Prompt (v8.0)
+├── ComfyUI/
+│   └── Qwen-Image-2512_ComfyUI.json # ComfyUI 工作流
 ├── scripts/
 │   └── core/
-│       ├── gen_slide.py        # 生成单张图片
-│       └── autoresearch.sh      # Autoresearch Loop 驱动脚本（两层循环）
+│       ├── autoresearch.sh           # 主驱动脚本（两层循环）
+│       ├── gen_slide.py              # ComfyUI 单张生图
+│       └── templates/
+│           ├── init.txt              # 女娲初始化模板
+│           ├── score.txt             # 二郎神评分模板
+│           └── optimize.txt          # 女娲优化模板
 └── projects/
     └── [项目名]/
-        ├── project_config.json
-        ├── script.md
-        ├── slides_content.json
-        ├── prompts/
-        │   └── slide_XX/
-        │       ├── vN_positive.txt
-        │       ├── vN_negative.txt
-        │       └── CHANGELOG.md
-        ├── slides/
-        └── assets/
-            ├── ref_meta.json        # 参考图元数据（用途说明）
-            ├── ref_01_xxx.png
-            ├── ref_02_xxx.png
-            └── ...
+        ├── project_config.json       # 项目配置（风格、分辨率等）
+        ├── slides_content.json       # 逐字稿内容
+        ├── prompts/slide_XX/         # 每页的 prompt 版本
+        ├── slides/                   # 生成的图片
+        └── assets/                   # 参考图 + ref_meta.json
+```
+
+### project_config.json
+
+```json
+{
+  "name": "项目名称",
+  "style": "手绘漫画，混子说风格",
+  "resolution": "1664x928",
+  "slides_count": 12,
+  "has_maosen_ip": true,
+  "has_maosen_voice": true,
+  "reference_images": ["assets/ref_01.jpg", "assets/ref_02.jpg"]
+}
+```
+
+### ref_meta.json
+
+```json
+{
+  "ref_01_exterior.jpg": {
+    "用途": "参考外观特征（车身、车灯、比例）",
+    "忽略": "纯白棚拍背景"
+  }
+}
 ```
 
 ---
 
-## 常用命令
+## 单张生图
 
-### 检查 ComfyUI 状态
-```bash
-curl http://100.111.221.7:8188/system_stats
-```
-
-### Autoresearch Loop（两层循环脚本）
-
-推荐使用 `autoresearch.sh` 做批量迭代，稳定且可控：
-
-```bash
-# 基本用法
-bash scripts/core/autoresearch.sh \
-  --project projects/[项目名] \
-  --slides "0 1 2 3 4" \
-  --iterations 4
-
-# 指定分辨率、关闭 Lightning
-COMFYUI_API=http://custom:8188 \
-NOTIFY_CHANNEL=telegram \
-bash scripts/core/autoresearch.sh \
-  --project projects/my-project \
-  --slides "0 1" \
-  --iterations 4 \
-  --no-lightning
-```
-
-**特性：**
-- 两层循环：slide 页数 × 每页迭代次数
-- `openclaw agent --session-id` 持久 session，上下文累积
-- 关键节点推送 Telegram（每轮分数 + 图片、新最高分、slide 完成）
-- 自动回退（低分版本不影响下一轮）
-- 配置完全从 `project_config.json` 读取（风格、分辨率等）
-
-**环境变量：**
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `COMFYUI_API` | `http://100.111.221.7:8188` | ComfyUI 地址 |
-| `NOTIFY_CHANNEL` | `telegram` | 通知频道 |
-
-### 生成单张图片（默认 Lightning 模式）
 ```bash
 python3 scripts/core/gen_slide.py \
   --project projects/[项目名] \
@@ -268,22 +200,8 @@ python3 scripts/core/gen_slide.py \
   --lightning
 ```
 
-⚠️ **哪吒默认必须加 `--lightning`**（4 steps，速度快 10 倍，质量足够）。
-只有在 Lightning 质量明确不够时才去掉。
+默认 Lightning 模式（4 steps，快 10 倍）。去掉 `--lightning` 用标准模式（50 steps）。
 
 ---
 
-## 评分标准
-
-详见 `SYSTEM_PROMPT_ERLANG.md`
-
-| 维度 | 分值 |
-|------|------|
-| 文字准确性 | 30分 |
-| 参考对象准确性 | 40分 |
-| 故事表达能力 | 30分 |
-
----
-
-**版本**：v10.1 (2026-04-04)
-**更新**：新增 `autoresearch.sh` 两层循环脚本；项目配置完全从 `project_config.json` 读取（风格、分辨率）
+**版本**：v11.0 (2026-04-04)
