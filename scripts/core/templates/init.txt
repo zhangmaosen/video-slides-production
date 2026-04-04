@@ -16,10 +16,21 @@
 
 ## 第二步：判断页面类型
 
-从 slides_content 中该页的 type 字段判断：
-- type=cover → 封面页，产品英雄镜头 + main_title + subtitle
-- type=reference → 必须画 reference 指定的 Semi/卡车等参考对象
-- type=story → 纯故事场景，不画具体产品，根据 script 设计故事画面
+读取 slide_${SLIDE_FMT} 的 script + viewpoint，自己判断：
+
+**判断标准：**
+- 这页的核心是"展示/介绍/对比"具体车辆（Semi/Tesla/Volvo/Windrose...）→ 使用参考图
+- 这页的核心是"讲故事/数据/观点"，车辆名称只是顺带出现 → 不使用参考图
+
+**常见判断：**
+- 封面 → 使用 ref_01（Semi 外观）
+- "Semi能耗只有1.7度" → 使用 ref_01
+- "全球物流巨头对比" → 使用 ref_01
+- "中国用销量证明" → 不使用参考图，纯故事
+- "充电30分钟跑300英里" → 使用 ref_01
+- "9年长征，Semi终于来了" → 使用 ref_01
+
+如果判断使用参考图：从 ref_meta.json 找到对应参考图编号（ref_01/ref_02...），读取对应图片分析特征
 
 ## 第三步：提炼画面（先想清楚再写）
 

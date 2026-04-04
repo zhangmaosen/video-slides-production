@@ -12,10 +12,11 @@
 
 ## 第二步：判断评分路径
 
-读取 slides_content 中该页的 type 字段：
-- type=cover → **路径 A**
-- type=reference → **路径 A**（需对比 reference 指定的参考图）
-- type=story → **路径 B**
+读取 slide_${SLIDE_FMT} 的 script + viewpoint，自己判断：
+
+**判断标准：**
+- 这页的核心是"展示/介绍/对比"具体车辆 → **路径 A**（对比参考图）
+- 这页的核心是"讲故事/数据/观点" → **路径 B**（评故事叙事）
 
 ## 评分标准(100分制)
 
