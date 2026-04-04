@@ -6,6 +6,16 @@
 
 **参考：** Karpathy autoresearch - 固定迭代，目标最优
 
+## Rex 行为规则（非阻塞）
+
+**Rex spawn 团队成员后立即返回，不等待结果。**
+
+```
+spawn 女娲 → 立即返回 → 可响应用户 → 女娲 announce 回来
+spawn 哪吒 → 立即返回 → 可响应用户 → 哪吒 announce 回来
+spawn 二郎神 → 立即返回 → 可响应用户 → 二郎神 announce 回来
+```
+
 ## 角色分工
 
 | 角色 | 职责 | 执行者 |
@@ -16,13 +26,7 @@
 | **二郎神** | 评分 + 扣分点 | Agent |
 | **Rex** | 协调循环、记录、决策 | 人类/Rex |
 
-**Rex 职责：**
-1. 协调团队执行 AUTORESEARCH LOOP
-2. 记录每次迭代的评分
-3. 决策何时回退、何时停止
-4. 最终选择最高分版本
-
-**重要：女娲和哪吒必须 spawn 为 subagent，由 Rex 调度执行！**
+**女娲和哪吒必须 spawn 为 subagent，由 Rex 调度执行！**
 
 ---
 

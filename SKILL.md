@@ -2,195 +2,43 @@
 
 ---
 
-## 🚀 欢迎使用视频幻灯片制作技能！
+## 🚀 Rex 交互规则（核心原则）
 
-我来帮你把报告文档转化为吸引人的视频幻灯片。
+**Rex 完全非阻塞模式：spawn 后立即返回，不等待结果**
+
+### 核心行为
+1. **Rex 是调度者**：spawn 团队成员后**立即返回**，不等待
+2. **不阻塞**：`sessions_spawn` 是非阻塞的，Rex 可以随时响应用户
+3. **并行工作**：女娲/哪吒/二郎神在后台并行执行
+4. **自动汇报**：团队成员完成后自动 announce 结果
+
+### 工作流程
+```
+用户指令 → Rex spawn 团队 → Rex 立即响应用户 → 团队后台工作 → announce 结果
+                                              ↓
+                                    用户可随时发送其他指令
+```
+
+### 示例
+```
+用户：生成 slide_00
+Rex：spawn 女娲 + 哪吒 + 二郎神 → 立即回复"已启动，正在生成..."
+用户：可以问其他问题或发其他指令
+Rex：响应用户的其他指令
+二郎神 announce 回来 → Rex 处理评分结果
+```
 
 ---
 
-## 🎯 Rex 交互规则
+## 团队成员
 
-**核心原则：Rex 不被阻塞，复杂工作交给团队成员**
-
-1. **Rex 是调度者**：复杂任务 spawn 团队成员执行，Rex 立即响应用户
-2. **不等待**：不阻塞等待 subagent 结果，任务在后台并行执行
-3. **用户可随时输入**：项目配置完成后，用户可随时发送指令
-4. **团队成员后台工作**：女娲/哪吒/二郎神完成任务后自动汇报 Rex
-
-**当用户说"开始新项目"或"新建项目"时，按步骤引导用户输入：**
-
----
-
-## 📋 项目配置向导（一步骤一回合）
-
-### 步骤 1：项目名称
-
-**Rex 说：**
-```
-📋 项目配置 - 第 1 步
-
-请提供项目名称：
-（例如：特斯拉 Robotaxi 分析）
-```
-
-**等待用户输入项目名称...**
-
----
-
-### 步骤 2：报告文档
-
-**Rex 说：**
-```
-📋 项目配置 - 第 2 步
-
-请提供报告文档：
-方式一：直接粘贴文字（短文本）
-方式二：发送文件（PDF/Word/TXT）—— 点击 📎 附件按钮
-方式三：发送链接（Google Docs / Notion 等在线文档）
-```
-
-**等待用户提供报告...**
-
----
-
-### 步骤 3：视觉风格
-
-**Rex 说：**
-```
-📋 项目配置 - 第 3 步
-
-选择视觉风格：
-a) 混子说 + 硬核工程拆解爆炸图风格
-b) 电影级写实
-c) 赛博朋克
-d) 自定义
-```
-
-**等待用户选择...**
-
----
-
-### 步骤 4：参考图
-
-**Rex 说：**
-```
-📋 项目配置 - 第 4 步
-
-是否有参考图？
-- 有（可发送多张图片）
-- 无
-```
-
-**等待用户发送图片...**
-
----
-
-### 步骤 5：茂森 IP
-
-**Rex 说：**
-```
-📋 项目配置 - 第 5 步
-
-是否使用茂森 IP？
-- 是
-- 否
-```
-
-**等待用户选择...**
-
----
-
-### 步骤 6：茂森语音
-
-**Rex 说：**
-```
-📋 项目配置 - 第 6 步
-
-是否有茂森语音参考？
-- 有（请提供音频文件）
-- 无
-```
-
-**等待用户选择...**
-
----
-
-### 步骤 7：输出分辨率
-
-**Rex 说：**
-```
-📋 项目配置 - 第 7 步
-
-输出分辨率？
-默认：1280x800（16:9）
-直接回车使用默认，或输入其他分辨率
-```
-
-**等待用户确认...**
-
----
-
-### ✅ 配置完成
-
-**Rex 说：**
-```
-✅ 配置完成！
-
-项目：[项目名称]
-风格：[选择的风格]
-分辨率：[分辨率]
-幻灯片数量：待分析后确定
-
-开始创建项目目录...
-```
-
-然后执行：
-1. 创建项目目录
-2. 生成 project_config.json
-3. 仓颉分析报告生成 slides_content.json
-
----
-
-## ✅ 配置确认
-
-配置完成后，我会：
-
-1. **创建项目目录**
-```
-projects/[项目名]/
-├── project_config.json    # 项目配置
-├── script.md             # 原始报告
-├── slides_content.json   # 仓颉整理后的内容
-├── prompts/              # 提示词
-├── slides/               # 生成的图片
-└── assets/               # 参考图（可选）
-```
-
-2. **生成项目配置文件** `project_config.json`
-
-3. **仓颉** 整理内容 → `slides_content.json`
-
-4. **女娲** 生成提示词 → `prompts/slide_XX/`
-
-5. **哪吒** 生成图片 → `slides/slide_XX.png`
-
-6. **二郎神** 评分（10次迭代选最高）
-
-7. **TTS** 生成语音
-
-8. **FFmpeg** 合成视频
-
----
-
-## 角色分工
-
-| 角色 | 职责 | 执行者 |
-|------|------|--------|
-| **仓颉** | 报告 → 逐字稿 | Agent |
-| **女娲** | 生成和优化 prompt | Agent |
-| **哪吒** | 生成图片 | Agent |
-| **二郎神** | 评分（10次迭代选最高） | Agent |
-| **Rex** | 协调循环、记录、决策 | 人类/Rex |
+| 角色 | 职责 | System Prompt |
+|------|------|---------------|
+| **仓颉** | 报告 → 逐字稿 | `SYSTEM_PROMPT_CANGJIE.md` |
+| **女娲** | 生成和优化 prompt | `SYSTEM_PROMPT_NVWA.md` |
+| **哪吒** | 生成图片 | - |
+| **二郎神** | 评分（10次迭代选最高） | `SYSTEM_PROMPT_ERLANG.md` |
+| **Rex** | 协调、记录、决策 | - |
 
 ---
 
@@ -199,20 +47,45 @@ projects/[项目名]/
 ```
 a. 报告文档 → slides_content.json（仓颉）
 b. 素材整理（图片、茂森IP）
-c. Autoresearch Loop（最多10次）
+c. Autoresearch Loop（最多10次迭代）
 d. TTS生成
 e. FFmpeg视频合成
 ```
 
 ---
 
-## 评分标准（100分）
+## Autoresearch Loop（非阻塞）
 
-| 维度 | 分值 |
-|------|------|
-| 文字准确性 | 30分 |
-| 参考对象准确性 | 40分 |
-| 故事表达能力 | 30分 |
+每个 slide 的迭代流程：
+
+```
+1. Rex spawn 女娲（告知基础版本号）
+   ↓ 女娲生成 prompt
+2. Rex spawn 哪吒
+   ↓ 哪吒生成图片
+3. Rex spawn 二郎神
+   ↓ 二郎神评分 → announce 结果
+4. Rex 收到 announce → 记录 → 决定下一步
+```
+
+**注意**：每步 spawn 后 Rex 立即返回，可以响应用户或处理其他事情
+
+---
+
+## 项目配置向导
+
+当用户说"开始新项目"时，逐步引导：
+
+### 步骤
+1. 项目名称
+2. 报告文档
+3. 视觉风格
+4. 参考图
+5. 茂森 IP
+6. 茂森语音
+7. 输出分辨率
+
+每步等待用户回复后再进行下一步。
 
 ---
 
@@ -221,26 +94,26 @@ e. FFmpeg视频合成
 ```
 video-slides-production/
 ├── SKILL.md                     # 本文档
-├── SCORING.md                   # 评分标准
-├── SYSTEM_PROMPT.md             # 女娲 System Prompt
-├── SYSTEM_PROMPT_CANGJIE.md    # 仓颉 System Prompt
-├── AUTORESEARCH_LOOP.md        # Autoresearch 循环流程
-├── ComfyUI/                   # ComfyUI 工作流
+├── SYSTEM_PROMPT_NVWA.md        # 女娲 System Prompt
+├── SYSTEM_PROMPT_CANGJIE.md     # 仓颉 System Prompt
+├── SYSTEM_PROMPT_ERLANG.md      # 二郎神 System Prompt
+├── AUTORESEARCH_LOOP.md         # Autoresearch 循环流程
+├── ComfyUI/                    # ComfyUI 工作流
 ├── scripts/
 │   └── core/
 │       └── gen_slide.py        # 生成图片脚本
 └── projects/
     └── [项目名]/
-        ├── project_config.json    # 项目配置（自动生成）
-        ├── script.md             # 原始报告
-        ├── slides_content.json   # 仓颉整理后的内容
-        ├── prompts/              # 提示词（版本化）
+        ├── project_config.json
+        ├── script.md
+        ├── slides_content.json
+        ├── prompts/
         │   └── slide_XX/
-        │       ├── v1_positive.txt
-        │       ├── v1_negative.txt
+        │       ├── vN_positive.txt
+        │       ├── vN_negative.txt
         │       └── CHANGELOG.md
-        ├── slides/               # 生成的图片
-        └── assets/               # 参考图
+        ├── slides/
+        └── assets/
 ```
 
 ---
@@ -260,23 +133,19 @@ python3 scripts/core/gen_slide.py \
   --version 1
 ```
 
-### project_config.json 格式
-```json
-{
-  "name": "项目名称",
-  "created": "2026-04-04",
-  "style": "混子说 + 硬核工程拆解爆炸图风格",
-  "resolution": "1280x800",
-  "slides_count": 18,
-  "has_maosen_ip": true,
-  "has_maosen_voice": true,
-  "reference_images": [
-    "assets/tesla_semi_exterior.png"
-  ]
-}
-```
+---
+
+## 评分标准
+
+详见 `SYSTEM_PROMPT_ERLANG.md`
+
+| 维度 | 分值 |
+|------|------|
+| 文字准确性 | 30分 |
+| 参考对象准确性 | 40分 |
+| 故事表达能力 | 30分 |
 
 ---
 
-**版本**：v8.0 (2026-04-04)
-**更新**：一步一步引导用户输入，每步等待用户回复后再进行下一步
+**版本**：v9.0 (2026-04-04)
+**更新**：Rex 完全非阻塞模式，spawn 后立即返回，不等待结果
