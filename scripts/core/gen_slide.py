@@ -24,7 +24,7 @@ API_URL = "http://100.111.221.7:8188"
 
 # WORKFLOW_PATH 放在 skill 目录下
 SCRIPT_DIR = Path(__file__).parent  # scripts/core/
-SKILL_DIR = SCRIPT_DIR.parent  # video-slides-production/
+SKILL_DIR = SCRIPT_DIR.parent.parent  # video-slides-production/
 WORKFLOW_PATH = SKILL_DIR / "ComfyUI" / "Qwen-Image-2512_ComfyUI.json"
 
 def load_workflow():

@@ -76,7 +76,8 @@ e. FFmpeg视频合成
 读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_NVWA.md
 
 ## 第二步：读取项目文件
-- 参考图：{project_path}/assets/
+- 参考图元数据：{project_path}/assets/ref_meta.json（**必须读取，了解每张图的用途**）
+- 参考图：{project_path}/assets/*.png/*.jpg
 - slides_content.json
 - CHANGELOG.md
 - 基础版本 prompt（最高分版本）
@@ -123,12 +124,50 @@ e. FFmpeg视频合成
 1. 项目名称
 2. 报告文档
 3. 视觉风格
-4. 参考图
+4. 参考图（**同时收集参考图用途说明**）
 5. 茂森 IP
 6. 茂森语音
 7. 输出分辨率
 
 每步等待用户回复后再进行下一步。
+
+### 步骤 4：参考图说明（重要！）
+
+用户发送参考图时，必须同时询问并记录每张图的用途：
+
+```
+请为每张参考图说明用途：
+- ref_01.png：用于参考 [主体特征]，不是 [背景/其他元素]
+- ref_02.png：用于参考 [外观/车型]，不是 [背景/其他元素]
+...
+```
+
+示例：
+```
+用户：发送 ref_02_exterior.png
+Rex：请说明这张图参考什么？
+用户：参考 Tesla Semi 的外观特征（车身、车灯、比例），不是背景
+Rex：已记录：ref_02_exterior.png → 参考 Semi 外观，不是背景
+```
+
+**参考图说明保存到：**
+- `assets/ref_meta.json` - 参考图元数据
+
+**ref_meta.json 格式：**
+```json
+{
+  "ref_01_cabin.png": {
+    "用途": "参考 Semi 座舱内部特征（方向盘、显示屏、驾驶位）",
+    "忽略": "背景"
+  },
+  "ref_02_exterior.png": {
+    "用途": "参考 Semi 外观特征（车身、车灯、比例）",
+    "忽略": "纯白棚拍背景"
+  }
+}
+```
+
+**女娲读取：** 女娲生成 prompt 时必须读取 `ref_meta.json`，知道每张参考图的正确用途。
 
 ---
 
@@ -157,6 +196,10 @@ video-slides-production/
         │       └── CHANGELOG.md
         ├── slides/
         └── assets/
+            ├── ref_meta.json        # 参考图元数据（用途说明）
+            ├── ref_01_xxx.png
+            ├── ref_02_xxx.png
+            └── ...
 ```
 
 ---
