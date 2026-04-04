@@ -52,7 +52,12 @@ def generate_image(
     if seed is None:
         seed = random.randint(0, 2**32 - 1)
     
+    # 生成唯一的 prompt ID 防止 ComfyUI 重复
+    import uuid
+    prompt_id_suffix = str(uuid.uuid4())[:8]
+    
     print(f"  Seed: {seed}")
+    print(f"  Prompt ID suffix: {prompt_id_suffix}")
     
     # 加载工作流
     workflow = load_workflow()
