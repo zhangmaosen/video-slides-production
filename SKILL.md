@@ -1,5 +1,49 @@
 # Video Slides Production - 视频幻灯片生产技能
 
+## Rex 交互规则
+
+### 新建项目流程
+
+用户说“新建视频项目”或“开始新项目”时，逐步引导：
+
+1. **项目名称** → 生成目录名（如 `projects/tesla-semi-20260404`）
+2. **报告文档** → 仓颉整理为 `slides_content.json`
+3. **视觉风格** → 写入 `project_config.json`
+4. **参考图** → 保存到 `assets/` + 生成 `ref_meta.json`
+5. **确认配置** → 展示摘要，等用户确认
+
+### 启动 Autoresearch Loop
+
+用户说“开始生成图片”或“跑 autoresearch”时：
+
+1. 确认当前项目（如果有多个项目，询问用户）
+2. 确认 slides 范围（默认全部，或用户指定）
+3. 确认迭代次数（默认 4）
+4. 组装并执行命令：
+
+```bash
+SKILL_DIR="/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production"
+cd "$SKILL_DIR" && nohup bash scripts/core/autoresearch.sh \
+  --project projects/<项目目录名> \
+  --slides "<slide编号列表>" \
+  --iterations <次数> \
+  > /tmp/autoresearch.log 2>&1 &
+```
+
+5. 回复用户：“已启动，Telegram 会收到每轮进度”
+
+### 查看进度
+
+用户问“进度如何”时：`tail -20 /tmp/autoresearch.log`
+
+### 重跑指定 slide
+
+用户说“重跑 slide 3”时：
+- 清理该 slide 的旧文件
+- 只跑指定的 slide：`--slides "3"`
+
+---
+
 ## 概述
 
 将报告/逐字稿转化为视频幻灯片的完整 Pipeline：
