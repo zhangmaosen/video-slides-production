@@ -130,14 +130,15 @@ print('0')
 "
 }
 
-# 发送通知到 Telegram（用 Rex bot 发送）
+# 发送通知到 Telegram（通过 Rex agent）
 notify() {
   local MSG="$1"
-  openclaw message send \
-    --channel "$NOTIFY_CHANNEL" \
-    --account rex \
-    --target 8666925685 \
-    --message "$MSG" >/dev/null 2>&1 &
+  openclaw agent \
+    --agent rex \
+    --session-id "autoresearch-notify" \
+    --message "$MSG" \
+    --deliver --channel "$NOTIFY_CHANNEL" \
+    --timeout 60 >/dev/null 2>&1 &
 }
 
 # 渲染模板（用 envsubst 替换变量）
@@ -316,10 +317,11 @@ notify "$(echo -e "$REPORT")"
 
 if [ "$ALL_PASS" = true ]; then
   echo ""
-  echo "[自动驱动] 通知启动 TTS + 视频合成..."
-  openclaw message send \
-    --channel "$NOTIFY_CHANNEL" \
-    --account rex \
-    --target 8666925685 \
-    --message "$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" >/dev/null 2>&1 || true
+  echo "[自动驱动] 通知 Rex 启动 TTS + 视频合成..."
+  openclaw agent \
+    --agent rex \
+    --session-id "autoresearch-notify" \
+    --message "$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" \
+    --deliver --channel "$NOTIFY_CHANNEL" \
+    --timeout 60 >/dev/null 2>&1 || true
 fi
