@@ -1,0 +1,16 @@
+{
+  "name": "特斯拉Semi电动重卡",
+  "created": "2026-04-04",
+  "style": "手绘漫画，混子说风格",
+  "resolution": "1664x928",
+  "slides_count": 12,
+  "has_maosen_ip": true,
+  "has_maosen_voice": true,
+  "maosen_ip_desc": "Q版大头卡通，浓密黑发，八字浓眉，白色T恤，自信表情，混子说风格插图",
+  "reference_images": [
+    "assets/ref_01_semi_exterior.jpg",
+    "assets/ref_02_windrose.jpg",
+    "assets/ref_03_semi_cabin.png",
+    "assets/ref_04_volvo.jpg"
+  ]
+}

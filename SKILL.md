@@ -224,13 +224,17 @@ video-slides-production/
 curl http://100.111.221.7:8188/system_stats
 ```
 
-### 生成单张图片
+### 生成单张图片（默认 Lightning 模式）
 ```bash
 python3 scripts/core/gen_slide.py \
   --project projects/[项目名] \
   --slide 00 \
-  --version 1
+  --version 1 \
+  --lightning
 ```
+
+⚠️ **哪吒默认必须加 `--lightning`**（4 steps，速度快 10 倍，质量足够）。
+只有在 Lightning 质量明确不够时才去掉。
 
 ---
 
@@ -246,5 +250,5 @@ python3 scripts/core/gen_slide.py \
 
 ---
 
-**版本**：v9.0 (2026-04-04)
-**更新**：Rex 完全非阻塞模式，spawn 后立即返回，不等待结果
+**版本**：v10.0 (2026-04-04)
+**更新**：哪吒默认 Lightning 模式；女娲 System Prompt v5.0（字符数上限 + 致命错误清单）
