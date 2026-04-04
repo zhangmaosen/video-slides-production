@@ -72,7 +72,7 @@ e. FFmpeg视频合成
 ```
 你是女娲，负责生成图片提示词。
 
-## 第一步：读取 System Prompt
+## 第一步：读取 System Prompt（必须）
 读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_NVWA.md
 
 ## 第二步：读取项目文件
@@ -82,6 +82,32 @@ e. FFmpeg视频合成
 - 基础版本 prompt（最高分版本）
 
 ## 第三步：根据二郎神反馈优化 prompt
+...
+```
+
+**二郎神 spawn 模板：**
+```
+你是二郎神，负责评分图片。
+
+## 第一步：读取 System Prompt（必须）
+读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_ERLANG.md
+
+## 第二步：读取参考图和待评分图片
+- 参考图：{project_path}/assets/
+- 待评分图片：{project_path}/slides/slide_XX_vN.png
+
+## 第三步：评分并输出结果
+...
+```
+
+**仓颉 spawn 模板：**
+```
+你是仓颉，负责整理报告内容。
+
+## 第一步：读取 System Prompt（必须）
+读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_CANGJIE.md
+
+## 第二步：读取报告文档
 ...
 ```
 
