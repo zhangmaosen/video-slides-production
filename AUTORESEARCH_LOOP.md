@@ -24,6 +24,94 @@
 
 **重要：女娲和哪吒必须 spawn 为 subagent，由 Rex 调度执行！**
 
+---
+
+## 女娲职责（必须遵守）
+
+### 输入
+1. **参考图** - 必须读取 `assets/` 目录下的参考图，分析特征
+2. **slides_content.json** - 当前 slide 的内容
+3. **CHANGELOG.md** - 迭代历史，了解之前版本的问题
+4. **二郎神反馈** - 上一版本的扣分点和优化建议
+
+### 输出
+- `prompts/slide_XX/vN_positive.txt` - 正向提示词
+- `prompts/slide_XX/vN_negative.txt` - 负向提示词
+- 更新 `CHANGELOG.md`
+
+### 女娲 prompt 模板
+```
+你是女娲，负责生成图片提示词。
+
+## 任务
+1. 读取项目目录下的参考图（assets/），分析特征
+2. 读取 slides_content.json 了解当前 slide 内容
+3. 读取 CHANGELOG.md 了解迭代历史
+4. 根据二郎神的反馈（如果有）优化 prompt
+
+## 参考图路径
+{project_path}/assets/
+
+## 输出
+写入：
+- {project_path}/prompts/slide_{num}/v{version}_positive.txt
+- {project_path}/prompts/slide_{num}/v{version}_negative.txt
+```
+
+---
+
+## 哪吒职责
+
+### 输入
+- 女娲生成的 prompt 文件
+
+### 输出
+- `slides/slide_XX_vN.png` - 生成的图片
+
+---
+
+## 二郎神职责（必须遵守）
+
+### 输入
+1. **生成的图片** - 待评分的图片
+2. **参考图** - 必须读取 `assets/` 目录下的参考图，逐项对比
+3. **slides_content.json** - 当前 slide 的内容，用于核对文字
+
+### 评分标准（100分）
+| 维度 | 分值 | 说明 |
+|------|------|------|
+| 文字准确性 | 30分 | 标题/副标题/数据准确性 |
+| 参考对象准确性 | 40分 | **必须与参考图逐项对比** |
+| 故事表达能力 | 30分 | 自说明性 + 视觉吸引力 + 风格一致性 |
+
+### 二郎神 prompt 模板
+```
+你是二郎神，负责评分。
+
+## 任务
+1. 读取参考图（assets/），分析参考物特征清单
+2. 读取生成的图片
+3. 逐项对比：参考物特征 vs 生成的图片
+4. 评分并列出扣分点
+
+## 参考图路径
+{project_path}/assets/
+
+## 图片路径
+{image_path}
+
+## slides_content
+{slide_content}
+
+## 输出格式
+- 每个维度的分数和扣分点
+- 与参考图的逐项对比结果
+- 总分
+- 优化建议
+```
+
+---
+
 ## 流程
 
 ```
@@ -33,38 +121,39 @@
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  1. Rex spawn 女娲 → 女娲生成 prompt                   │
-│      - 读取 project_config.json (style)                 │
-│      - 读取 slides_content.json (内容)                  │
-│      - 读取 assets/ (参考图)                           │
-│      - 输出: prompts/slide_XX/vN_*.txt                │
-│      - 汇报给 Rex                                      │
+│  1. Rex spawn 女娲                                     │
+│      女娲必须读取：                                      │
+│      - 参考图（assets/）                              │
+│      - slides_content.json                            │
+│      - CHANGELOG.md（迭代历史）                       │
+│      - 二郎神反馈（上一版本）                          │
+│      → 生成 prompt → 汇报给 Rex                        │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  2. Rex spawn 哪吒 → 哪吒生成图片                      │
-│      - 运行: python3 scripts/core/gen_slide.py         │
-│      - 输出: slides/slide_XX_vN.png                   │
-│      - 汇报给 Rex                                      │
+│  2. Rex spawn 哪吒                                    │
+│      → 生成图片 → 汇报给 Rex                           │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  3. Rex spawn 二郎神 → 二郎神评分                       │
-│      - 读取生成的图片                                   │
-│      - 评分标准（100分）：                              │
-│        - 文字准确性：30分                              │
-│        - 参考对象准确性：40分                            │
-│        - 故事表达能力：30分                            │
-│      - 汇报给 Rex                                      │
+│  3. Rex spawn 二郎神                                   │
+│      二郎神必须读取：                                   │
+│      - 参考图（assets/）逐项对比                      │
+│      - 生成的图片                                      │
+│      - slides_content.json                            │
+│      → 评分 → 汇报给 Rex                             │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  4. Rex 记录结果 → 决定下一步                          │
+│  4. Rex 记录结果 → 更新 CHANGELOG.md                 │
+│      → 决定下一步（继续/回退/停止）                   │
 └─────────────────────────────────────────────────────────┘
 ```
+
+---
 
 ## 实验规则
 
@@ -82,8 +171,8 @@
 
 ### 4. 最终选择
 - 10 次迭代后，选择评分最高的版本
-- 如果最高分版本是最后一个，OK
-- 如果不是，用最后一个替代最高分版本
+
+---
 
 ## 记录格式
 
@@ -98,90 +187,59 @@
 - 问题：Tesla Logo 变形
 
 ## v2 (2026-04-04)
-- 评分：78 分
+- 评分：82 分
 - 状态：keep
-- 优化：修正 Tesla Logo 描述
+- 二郎神反馈：挡风玻璃比例偏大
 
 ## v3 (2026-04-04)
-- 评分：72 分
-- 状态：discard（下降，回退到 v2）
-- 问题：车身比例失真
-
-...
+- 评分：95 分
+- 状态：keep
+- 优化：基于二郎神反馈调整
 
 ## 最终选择
 - 选择版本：v3
 - 最终评分：95 分
 ```
 
+---
+
 ## 伪代码
 
 ```
 best_score = 0
 best_version = 1
-last_version = 1
 
 for iteration in range(1, 11):
-    # 1. Rex spawn 女娲 → 女娲生成 prompt
+    # 1. Rex spawn 女娲
+    # 女娲读取：参考图 + slides_content + CHANGELOG + 二郎神反馈
     spawn 女娲(slide, iteration)
     
-    # 2. Rex spawn 哪吒 → 哪吒生成图片
+    # 2. Rex spawn 哪吒
     spawn 哪吒(slide, iteration)
     
-    # 3. Rex spawn 二郎神 → 二郎神评分
+    # 3. Rex spawn 二郎神
+    # 二郎神读取：参考图逐项对比 + 图片 + slides_content
     score = spawn 二郎神(slide, iteration)
     
     # 4. Rex 记录
-    log(slide, iteration, score)
+    update CHANGELOG(slide, iteration, score,二郎神反馈)
     
     # 5. Rex 决策
     if score > best_score:
         best_score = score
         best_version = iteration
     
-    if score < last_version_score:
-        # 评分下降，回退
+    if score < last_score:
         discard(iteration)
     else:
-        # 评分提升或持平
         keep(iteration)
     
-    last_version_score = score
+    last_score = score
 
-# 最终选择
 final_version = best_version
 ```
 
-## 与 Karpathy Autoresearch 对比
-
-| 维度 | Karpathy | 我们 |
-|------|---------|------|
-| 目标 | val_bpb 越低越好 | 评分越高越好 |
-| 约束 | 固定 5 分钟 | 固定 10 次迭代 |
-| 变量 | train.py | prompt |
-| 循环 | 无限 | 10 次后停止 |
-| 记录 | results.tsv | CHANGELOG.md |
-| 回退 | 不回退 | 评分下降回退 |
-
-## 启动方式
-
-```
-开始新项目：
-1. 仓颉读取 script.md → slides_content.json
-2. 对每个 slide 运行实验循环（最多 10 次）
-3. 最终选择最高分版本
-
-继续优化：
-- 如果某个 slide 想重新优化，删除低分版本，重新运行
-```
-
-## 停止条件
-
-- 所有 18 张 slides 都完成 10 次迭代
-- 用户手动打断
-
 ---
 
-**版本**：v3.0 (2026-04-04)
-**更新**：女娲和哪吒必须 spawn 为 subagent
-**参考**：Karpathy autoresearch
+**版本**：v4.0 (2026-04-04)
+**更新**：女娲和二郎神必须读取参考图，女娲必须读取二郎神反馈和CHANGELOG
