@@ -130,11 +130,12 @@ print('0')
 "
 }
 
-# 发送通知到 Telegram（用 openclaw message send 直接发）
+# 发送通知到 Telegram（用 Rex bot 发送）
 notify() {
   local MSG="$1"
   openclaw message send \
     --channel "$NOTIFY_CHANNEL" \
+    --account rex \
     --target 8666925685 \
     --message "$MSG" >/dev/null 2>&1 &
 }
@@ -318,6 +319,7 @@ if [ "$ALL_PASS" = true ]; then
   echo "[自动驱动] 通知启动 TTS + 视频合成..."
   openclaw message send \
     --channel "$NOTIFY_CHANNEL" \
+    --account rex \
     --target 8666925685 \
     --message "$(echo -e "$REPORT")\n\n请确认是否启动 TTS 语音生成 + FFmpeg 视频合成？" >/dev/null 2>&1 || true
 fi
