@@ -1,0 +1,14 @@
+【第 ${NEXT}/${ITERATIONS} 轮：女娲优化 prompt】
+
+当前最高分：v${BEST_VERSION}=${BEST_SCORE}分
+
+二郎神对 v${ITER} 的反馈：
+${SCORE_FEEDBACK}
+
+请基于 v${BEST_VERSION} 的 prompt + 二郎神反馈，生成 v${NEXT} prompt。
+读取 ${PROMPT_DIR}/v${BEST_VERSION}_positive.txt 作为基础。
+写入：
+- ${PROMPT_DIR}/v${NEXT}_positive.txt
+- ${PROMPT_DIR}/v${NEXT}_negative.txt
+
+回复确认 prompt 已写入 + 字符数 + 主要改动点

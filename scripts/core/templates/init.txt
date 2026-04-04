@@ -1,0 +1,17 @@
+你现在负责为 slide_${SLIDE_FMT} 完成 ${ITERATIONS} 轮 Autoresearch Loop。
+
+【核心规则 - 违反任何一条 = 废稿重来】
+1. 风格：${PROJECT_STYLE}（非写实摄影）
+2. 封面页(slide_00)用 main_title 和 subtitle 作为文字
+3. 非封面页从 script/viewpoint 提取文字，禁止用封面标题
+4. 非封面页必须画故事场景，不是车辆棚拍
+5. ⚠️ prompt 总字符数 400-700，绝对不超过 800！超过 800 直接作废！
+
+【开始 v1】
+1. 读取 ${PROJECT_DIR}/slides_content.json，找到 slide_${SLIDE_FMT} 的内容
+2. 读取 ${PROJECT_DIR}/assets/ref_meta.json 了解参考图用途
+3. 读取 ${PROJECT_DIR}/assets/ 目录下的参考图
+4. 生成 v1 prompt，写入：
+   - ${PROMPT_DIR}/v1_positive.txt
+   - ${PROMPT_DIR}/v1_negative.txt
+5. 回复确认 prompt 已写入 + 字符数

@@ -58,6 +58,7 @@ SLIDES_TOTAL=$(python3 -c "import json; print(json.load(open('${CONFIG_FILE}'))[
 COMFYUI_API="${COMFYUI_API:-http://100.111.221.7:8188}"
 NOTIFY_CHANNEL="${NOTIFY_CHANNEL:-telegram}"
 GEN_SCRIPT="${SKILL_DIR}/scripts/core/gen_slide.py"
+TEMPLATE_DIR="${SKILL_DIR}/scripts/core/templates"
 TIMEOUT=180
 
 echo ""
@@ -149,6 +150,16 @@ notify() {
   fi
 }
 
+# 渲染模板（用 envsubst 替换变量）
+render_template() {
+  local TEMPLATE_FILE="${TEMPLATE_DIR}/$1"
+  if [ ! -f "$TEMPLATE_FILE" ]; then
+    echo "❌ 模板文件不存在: $TEMPLATE_FILE" >&2
+    return 1
+  fi
+  envsubst < "$TEMPLATE_FILE"
+}
+
 # ============================================================
 # 外层循环：遍历 slides
 # ============================================================
@@ -175,23 +186,8 @@ for SLIDE_NUM in $SLIDES; do
   echo ""
   echo "  [第 1/${ITERATIONS} 轮] 初始化 + 女娲 v1"
   
-  INIT_MSG="你现在负责为 slide_${SLIDE_FMT} 完成 ${ITERATIONS} 轮 Autoresearch Loop。
-
-【核心规则 - 违反任何一条 = 废稿重来】
-1. 风格：${PROJECT_STYLE}（非写实摄影）
-2. 封面页(slide_00)用 main_title 和 subtitle 作为文字
-3. 非封面页从 script/viewpoint 提取文字，禁止用封面标题
-4. 非封面页必须画故事场景，不是车辆棚拍
-5. ⚠️ prompt 总字符数 400-700，绝对不超过 800！超过 800 直接作废！
-
-【开始】
-1. 读取 ${PROJECT_DIR}/slides_content.json，找到 slide_${SLIDE_FMT} 的内容
-2. 读取 ${PROJECT_DIR}/assets/ref_meta.json 了解参考图用途
-3. 读取 ${PROJECT_DIR}/assets/ 目录下的参考图
-4. 生成 v1 prompt，写入：
-   - ${PROMPT_DIR}/v1_positive.txt
-   - ${PROMPT_DIR}/v1_negative.txt
-5. 回复确认 prompt 已写入文件 + 字符数"
+  export SLIDE_FMT ITERATIONS PROJECT_STYLE PROJECT_DIR PROMPT_DIR
+  INIT_MSG=$(render_template "init.txt")
 
   REPLY=$(echo "$INIT_MSG" | xargs -0 openclaw agent --session-id "$SESSION_ID" --json --timeout "$TIMEOUT" --message 2>/dev/null | extract_text)
   echo "  女娲 v1: ${REPLY:0:100}..."
@@ -234,25 +230,8 @@ for SLIDE_NUM in $SLIDES; do
 
     # 二郎神：评分
     echo "  [二郎神] 评分..."
-    SCORE_MSG="【第 ${ITER}/${ITERATIONS} 轮：二郎神评分】
-
-请读取图片：${IMG_FILE}
-然后严格评分（100分制）：
-- 文字准确性：30分
-- 参考对象准确性：40分（或故事表达能力30分）
-- 故事表达能力：30分
-
-回复格式：
-总分: X/100
-文字准确性：X/30
-参考对象准确性：X/40（或故事表达 X/30）
-故事表达能力：X/30
----
-[问题]
-1. ...
----
-[优化建议]
-1. ..."
+    export ITER ITERATIONS IMG_FILE
+    SCORE_MSG=$(render_template "score.txt")
 
     SCORE_REPLY=$(call_agent "$SESSION_ID" "$SCORE_MSG" "$TIMEOUT" | extract_text)
     SCORE=$(echo "$SCORE_REPLY" | extract_score)
@@ -286,20 +265,9 @@ for SLIDE_NUM in $SLIDES; do
       NEXT=$((ITER + 1))
       echo "  [女娲] 生成 v${NEXT}..."
       
-      OPTIM_MSG="【第 ${NEXT}/${ITERATIONS} 轮：女娲优化 prompt】
-
-当前最高分：v${BEST_VERSION}=${BEST_SCORE}分
-
-二郎神对 v${ITER} 的反馈：
-${SCORE_REPLY:0:600}
-
-请基于 v${BEST_VERSION} 的 prompt + 二郎神反馈，生成 v${NEXT} prompt。
-读取 ${PROMPT_DIR}/v${BEST_VERSION}_positive.txt 作为基础。
-写入：
-- ${PROMPT_DIR}/v${NEXT}_positive.txt
-- ${PROMPT_DIR}/v${NEXT}_negative.txt
-
-回复确认 prompt 已写入 + 字符数 + 主要改动点"
+      export NEXT BEST_VERSION BEST_SCORE ITER ITERATIONS PROMPT_DIR
+      export SCORE_FEEDBACK="${SCORE_REPLY:0:600}"
+      OPTIM_MSG=$(render_template "optimize.txt")
 
       OPTIM_REPLY=$(call_agent "$SESSION_ID" "$OPTIM_MSG" "$TIMEOUT" | extract_text)
       echo "  女娲 v${NEXT}: ${OPTIM_REPLY:0:100}..."
