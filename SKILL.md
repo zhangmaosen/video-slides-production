@@ -93,11 +93,15 @@ e. FFmpeg视频合成
 ## 第一步：读取 System Prompt（必须）
 读取：/Users/maosen/.openclaw/workspace-rex/skills/video-slides-production/SYSTEM_PROMPT_ERLANG.md
 
-## 第二步：读取参考图和待评分图片
+## 第二步：读取参考图元数据（必须）
+读取：{project_path}/assets/ref_meta.json
+了解每张参考图的用途，评分时只对比参考的要素。
+
+## 第三步：读取参考图和待评分图片
 - 参考图：{project_path}/assets/
 - 待评分图片：{project_path}/slides/slide_XX_vN.png
 
-## 第三步：评分并输出结果
+## 第四步：评分并输出结果
 ...
 ```
 
