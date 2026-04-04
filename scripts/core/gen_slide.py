@@ -5,6 +5,7 @@
 
 用法：
   python3 gen_slide.py --project projects/semi-ev3_20260403 --slide 00 --version 1
+  python3 gen_slide.py --project projects/semi-ev3_20260403 --slide 00 --version 1 --lightning
 
 输出：
   slides/slide_00_v1.png
@@ -20,7 +21,11 @@ import requests
 from pathlib import Path
 
 API_URL = "http://100.111.221.7:8188"
-WORKFLOW_PATH = Path(__file__).parent.parent.parent / "ComfyUI" / "Qwen-Image-2512_ComfyUI.json"
+
+# WORKFLOW_PATH 放在 skill 目录下
+SCRIPT_DIR = Path(__file__).parent  # scripts/core/
+SKILL_DIR = SCRIPT_DIR.parent  # video-slides-production/
+WORKFLOW_PATH = SKILL_DIR / "ComfyUI" / "Qwen-Image-2512_ComfyUI.json"
 
 def load_workflow():
     """加载 ComfyUI 工作流"""
@@ -34,6 +39,7 @@ def generate_image(
     seed: int = None,
     width: int = 1280,
     height: int = 800,
+    lightning: bool = False,
     api_url: str = API_URL
 ):
     """
@@ -46,9 +52,10 @@ def generate_image(
         seed: 随机种子（None 则随机生成）
         width: 图片宽度
         height: 图片高度
+        lightning: 是否使用 Lightning 模式
         api_url: ComfyUI API 地址
     """
-    # 随机 seed
+    # 随机 seed（确保每次不同）
     if seed is None:
         seed = random.randint(0, 2**32 - 1)
     
@@ -57,6 +64,7 @@ def generate_image(
     prompt_id_suffix = str(uuid.uuid4())[:8]
     
     print(f"  Seed: {seed}")
+    print(f"  Lightning: {lightning}")
     print(f"  Prompt ID suffix: {prompt_id_suffix}")
     
     # 加载工作流
@@ -64,20 +72,30 @@ def generate_image(
     
     # 修改工作流
     for node_id, node in workflow.items():
-        if node.get('class_type') == 'CLIPTextEncode':
-            inputs = node.get('inputs', {})
+        class_type = node.get('class_type')
+        inputs = node.get('inputs', {})
+        
+        if class_type == 'CLIPTextEncode':
+            # 设置提示词
             if 'text' in inputs:
-                # 判断是正向还是负向
                 if 'negative' in node_id.lower() or 'neg' in node_id.lower():
                     inputs['text'] = negative_prompt
                 else:
                     inputs['text'] = positive_prompt
-        elif node.get('class_type') == 'EmptySD3LatentImage':
-            node['inputs']['width'] = width
-            node['inputs']['height'] = height
-            node['inputs']['seed'] = seed
-        elif node.get('class_type') == 'PrimitiveBoolean':
-            node['inputs']['value'] = False
+        
+        elif class_type == 'EmptySD3LatentImage':
+            # 设置分辨率和 seed
+            inputs['width'] = width
+            inputs['height'] = height
+            inputs['seed'] = seed
+        
+        elif class_type == 'PrimitiveBoolean':
+            # Lightning 模式开关
+            inputs['value'] = lightning
+        
+        elif class_type == 'KSampler':
+            # 确保使用随机 seed
+            inputs['seed'] = seed
     
     # 发送请求
     data = {"prompt": workflow}
@@ -117,15 +135,15 @@ def main():
     parser.add_argument("--slide", required=True, help="幻灯片编号（如 00, 01）")
     parser.add_argument("--version", type=int, default=1, help="版本号（默认 1）")
     parser.add_argument("--seed", type=int, default=None, help="随机种子")
-    parser.add_argument("--width", type=int, default=1280, help="图片宽度")
-    parser.add_argument("--height", type=int, default=800, help="图片高度")
+    parser.add_argument("--width", type=int, default=1664, help="图片宽度（默认 1664）")
+    parser.add_argument("--height", type=int, default=928, help="图片高度（默认 928）")
+    parser.add_argument("--lightning", action="store_true", help="使用 Lightning 模式（4 steps, CFG 1）")
     parser.add_argument("--api-url", default=API_URL, help="ComfyUI API 地址")
     
     args = parser.parse_args()
     
     # 构建路径（相对于 skills/video-slides-production）
-    skills_dir = Path(__file__).parent.parent.parent
-    project_dir = skills_dir / args.project
+    project_dir = SKILL_DIR / args.project
     slide_num = args.slide
     version = args.version
     
@@ -167,6 +185,7 @@ def main():
         seed=args.seed,
         width=args.width,
         height=args.height,
+        lightning=args.lightning,
         api_url=args.api_url
     )
     
