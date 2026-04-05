@@ -129,12 +129,19 @@
 
 ## 输出格式
 
-每页必须包含 `type` 字段（由仓颉判断写入）：
+每页必须包含：
+- `title`：页面标题
+- `viewpoint`：本页核心观点，一句话
+- `script`：有画面感的开场白 + 核心内容 + 记忆点
+- `background`：数据来源和补充信息
+
+封面页（slide_00）额外包含：
+- `main_title`：封面主标题
+- `subtitle`：封面副标题
 
 ```json
 {
   "slide_00": {
-    "type": "cover",
     "title": "封面",
     "main_title": "特斯拉 Semi",
     "subtitle": "掀起电动重卡革命",
@@ -143,44 +150,15 @@
     "background": "从报告中提取的数据和事实"
   },
   "slide_01": {
-    "type": "reference",
-    "reference": "ref_01",
     "title": "页面标题",
     "viewpoint": "本页核心，一句话",
     "script": "开头钩子 + 核心内容 + 记忆点",
-    "background": "数据来源和补充信息"
-  },
-  "slide_02": {
-    "type": "story",
-    "title": "页面标题",
-    "viewpoint": "本页核心，一句话",
-    "script": "纯故事场景，不画具体产品",
     "background": "数据来源和补充信息"
   }
 }
 ```
 
-**type 字段说明：**
-- `cover`：封面页，主标题 + 副标题。图片需要画 Semi 外观 → `type=reference`
-- `reference`：这页的核心是"展示/介绍/对比"具体车辆（Semi/Volvo/Windrose...），图片必须画对应参考图
-- `story`：这页的核心是"讲一个故事/数据/观点"，车辆名称只是顺带出现，不要求图片画车辆
-
-**判断规则（仓颉自动判断）：**
-- slide_00 → `type=reference, reference=ref_01`
-- script/viewpoint 的核心是"展示车辆外观/参数/对比" → `reference`，reference 填对应参考图编号
-- script/viewpoint 的核心是"讲故事/数据/观点"，车辆只是顺带词 → `story`
-
-**常见误判：**
-- ❌ "Tesla Semi 用数据说话" → 不是 reference，核心是数据，不是展示 Semi
-- ❌ "中国用销量证明" → 不是 reference，核心是中国市场，不是展示 Windrose
-- ✅ "全球物流巨头对比 Semi vs 柴油" → reference，核心是对比展示
-- ✅ "9年磨一剑，Semi 终于来了" → reference，核心是展示 Semi
-
-**reference 编号对应：**
-- ref_01 → assets/ref_01_semi_exterior.jpg（Semi 外观）
-- ref_02 → assets/ref_02_windrose.jpg（Windrose 外观）
-- ref_03 → assets/ref_03_semi_cabin.png（Semi 座舱）
-- ref_04 → assets/ref_04_volvo.jpg（Volvo 外观）
+**重要：不输出 type、reference、overlay_text 等字段。**
 
 ---
 
@@ -201,9 +179,8 @@
 
 ## 注意事项
 
-**仓颉只负责生成内容，不管 type 分类。**
-type 分类由人工或独立流程处理。
+仓颉只负责生成内容，不管 type 分类。
 仓颉生成的 slides_content.json 只需包含：
 - title、viewpoint、script、background
 - cover 页包含 main_title、subtitle
-- 不需要 type/reference/overlay_text 字段
+- 不需要 type、reference、overlay_text 字段
