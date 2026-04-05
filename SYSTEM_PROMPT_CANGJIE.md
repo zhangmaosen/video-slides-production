@@ -134,6 +134,7 @@
 - `viewpoint`：本页核心观点，一句话
 - `script`：有画面感的开场白 + 核心内容 + 记忆点
 - `background`：数据来源和补充信息
+- `cast`：本页面出现的角色列表（来自 characters.json 中的角色ID），如 ["tesla_semi", "diesel_truck"]
 
 封面页（slide_00）额外包含：
 - `main_title`：封面主标题
@@ -147,13 +148,15 @@
     "subtitle": "掀起电动重卡革命",
     "viewpoint": "爆点，一句话概括",
     "script": "有画面感的开场白，3秒抓住注意力",
-    "background": "从报告中提取的数据和事实"
+    "background": "从报告中提取的数据和事实",
+    "cast": ["tesla_semi", "disruptor"]
   },
   "slide_01": {
     "title": "页面标题",
     "viewpoint": "本页核心，一句话",
     "script": "开头钩子 + 核心内容 + 记忆点",
-    "background": "数据来源和补充信息"
+    "background": "数据来源和补充信息",
+    "cast": ["tesla_semi", "outdated_one"]
   }
 }
 ```
