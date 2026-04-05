@@ -8,9 +8,8 @@
 
 1. **项目名称** → 生成目录名（如 `projects/tesla-semi-20260404`）
 2. **报告文档** → 仓颉整理为 `slides_content.json`
-3. **视觉风格** → 写入 `project_config.json`
+3. **角色库** → 太乙生成 `characters.json`（对象名字+外观描述+个性）
 4. **参考图** → 保存到 `assets/` + 生成 `ref_meta.json`
-   type 分类由人工处理（不需要仓颉做）
 5. **确认配置** → 展示摘要，等用户确认
 
 ### 启动 Autoresearch Loop
@@ -50,7 +49,7 @@ cd "$SKILL_DIR" && nohup bash scripts/core/autoresearch.sh \
 将报告/逐字稿转化为视频幻灯片的完整 Pipeline：
 
 ```
-报告 → 逐字稿 → slides_content.json → 图片生成(Autoresearch) → TTS → 视频合成
+报告 → 仓颉(逐字稿) → 太乙(角色库) → 女娲(prompt) → 哪吒(生图) → 二郎神(评分)
 ```
 
 ---
@@ -163,6 +162,7 @@ bash scripts/core/autoresearch.sh \
 | 角色 | 职责 | System Prompt | 使用方式 |
 |------|------|---------------|----------|
 | **仓颉** | 报告 → 逐字稿 | `SYSTEM_PROMPT_CANGJIE.md` | Rex spawn |
+| **太乙** | 角色库（对象名字+外观+个性） | `SYSTEM_PROMPT_TAIJI.md` | Rex spawn |
 | **女娲** | 生成/优化 prompt | `SYSTEM_PROMPT_NVWA.md` | autoresearch.sh 内 |
 | **哪吒** | 生成图片 | - | gen_slide.py |
 | **二郎神** | 评分图片 | `SYSTEM_PROMPT_ERLANG.md` | autoresearch.sh 内 |
