@@ -49,7 +49,8 @@ cd "$SKILL_DIR" && nohup bash scripts/core/autoresearch.sh \
 将报告/逐字稿转化为视频幻灯片的完整 Pipeline：
 
 ```
-报告 → 太乙(角色库) → 仓颉(剧本) → 女娲(prompt) → 哪吒(生图) → 二郎神(评分)
+报告 → 太乙(角色库) → 仓颉(剧本) → 女娲(prompt) → 顾恺之(编辑) → 哪吒(生图) → 二郎神(评分)
+
 ```
 
 ---
@@ -151,7 +152,7 @@ bash scripts/core/autoresearch.sh \
 |------|------|------|
 | `init.txt` | 女娲首次生成 prompt | `${SLIDE_FMT}`, `${PROJECT_STYLE}`, `${PROJECT_DIR}` |
 | `score.txt` | 二郎神评分 | `${ITER}`, `${ITERATIONS}`, `${IMG_FILE}` |
-| `optimize.txt` | 女娲优化 prompt | `${NEXT}`, `${BEST_VERSION}`, `${SCORE_FEEDBACK}` |
+| `optimize.txt` | 顾恺之编辑 prompt | `${NEXT}`, `${BEST_VERSION}`, `${SCORE_FEEDBACK}` |
 
 变量通过 `envsubst` 自动替换。
 
@@ -163,7 +164,8 @@ bash scripts/core/autoresearch.sh \
 |------|------|---------------|----------|
 | **仓颉** | 报告 → 逐字稿 | `SYSTEM_PROMPT_CANGJIE.md` | Rex spawn |
 | **太乙** | 角色库（对象名字+外观+个性） | `SYSTEM_PROMPT_TAIJI.md` | Rex spawn |
-| **女娲** | 生成/优化 prompt | `SYSTEM_PROMPT_NVWA.md` | autoresearch.sh 内 |
+| **女娲** | 生成 prompt（从零创作） | `SYSTEM_PROMPT_NVWA.md` | autoresearch.sh 内 |
+| **顾恺之** | 编辑 prompt（精准修改） | `SYSTEM_PROMPT_GUKAIZHI.md` | autoresearch.sh 内 |
 | **哪吒** | 生成图片 | - | gen_slide.py |
 | **二郎神** | 评分图片 | `SYSTEM_PROMPT_ERLANG.md` | autoresearch.sh 内 |
 
@@ -198,7 +200,7 @@ video-slides-production/
 │       └── templates/
 │           ├── init.txt              # 女娲初始化模板
 │           ├── score.txt             # 二郎神评分模板
-│           └── optimize.txt          # 女娲优化模板
+│           └── optimize.txt          # 顾恺之编辑模板
 └── projects/
     └── [项目名]/
         ├── project_config.json       # 项目配置（风格、分辨率等）
