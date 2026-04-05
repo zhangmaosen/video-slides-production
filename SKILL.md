@@ -7,8 +7,8 @@
 用户说“新建视频项目”或“开始新项目”时，逐步引导：
 
 1. **项目名称** → 生成目录名（如 `projects/tesla-semi-20260404`）
-2. **报告文档** → 仓颉整理为 `slides_content.json`
-3. **角色库** → 太乙生成 `characters.json`（对象名字+外观描述+个性）
+2. **角色库** → 太乙生成 `characters.json`（对象名字+外观描述+个性）
+3. **报告文档** → 仓颉整理为 `slides_content.json`（参考角色库内容）
 4. **参考图** → 保存到 `assets/` + 生成 `ref_meta.json`
 5. **确认配置** → 展示摘要，等用户确认
 
@@ -49,7 +49,7 @@ cd "$SKILL_DIR" && nohup bash scripts/core/autoresearch.sh \
 将报告/逐字稿转化为视频幻灯片的完整 Pipeline：
 
 ```
-报告 → 仓颉(逐字稿) → 太乙(角色库) → 女娲(prompt) → 哪吒(生图) → 二郎神(评分)
+报告 → 太乙(角色库) → 仓颉(剧本) → 女娲(prompt) → 哪吒(生图) → 二郎神(评分)
 ```
 
 ---
